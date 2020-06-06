@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package item;
+package poeitem;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -11,7 +11,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Modifier implements Serializable {
-    public static ArrayList<Modifier> all = new ArrayList<Modifier>();
+    public static ArrayList<Modifier> AllExplicitModifiers = new ArrayList<Modifier>();
+    public static ArrayList<Modifier> AllImplicitModifiers = new ArrayList<Modifier>();
     
     private int ModGenerationTypeID; // 1 = prefix, 2 = suffix
     private String CorrectGroup;
@@ -55,18 +56,32 @@ public class Modifier implements Serializable {
     
     public static Modifier getFromStr(String str)
     {
-        for (Modifier m : all)
+        if (!str.contains("implicit"))
         {
-            if (m.getStr().equals(str))
+            for (Modifier m : AllExplicitModifiers)
             {
-                return m;
+                if (m.getStr().equals(str))
+                {
+                    return m;
+                }
+            }
+        }
+        else
+        {
+            str = str.replace(" (implicit)", "");
+            for (Modifier m : AllImplicitModifiers)
+            {
+                if (m.getStr().equals(str))
+                {
+                    return m;
+                }
             }
         }
         
         return null;
     }
     
-    public Modifier(String ModGenerationTypeID, String CorrectGroup, String str)
+    public Modifier(String ModGenerationTypeID, String CorrectGroup, String str, boolean isImplicit)
     {
         this.ModGenerationTypeID = Integer.valueOf(ModGenerationTypeID);
         this.CorrectGroup = CorrectGroup;
@@ -84,19 +99,26 @@ public class Modifier implements Serializable {
         str = removeRolls(str);
         this.str = str;
         
-        for (Modifier m : all)
+        for (Modifier m : AllExplicitModifiers)
             if (m.str.equals(this.str))
                 return;
         
         int count = str.length() - str.replaceAll("#", "").length();
         rolls = new double[count];
         
-        all.add(this);
+        if (!isImplicit)
+        {
+            AllExplicitModifiers.add(this);
+        }
+        else
+        {
+            AllImplicitModifiers.add(this);
+        }
     }
     
     public Modifier(String ModGenerationTypeID, String CorrectGroup, String str, String[] pseudoSupportedModifiersStrs)
     {
-        this(ModGenerationTypeID, CorrectGroup, str);
+        this(ModGenerationTypeID, CorrectGroup, str, false);
         
         pseudoSupportedModifiers = new Modifier[pseudoSupportedModifiersStrs.length];
         for (int i=0; i<pseudoSupportedModifiersStrs.length; i++)
@@ -105,7 +127,7 @@ public class Modifier implements Serializable {
         }
     }
         
-    private String removeRolls(String str)
+    public String removeRolls(String str)
     {
         Pattern p = Pattern.compile("(\\d+(?:\\.\\d+)?)");
         Matcher m = p.matcher(str);
@@ -158,12 +180,22 @@ public class Modifier implements Serializable {
             "+#% to Chaos Resistance"
         });
         
-        new Modifier("0", "TotalFromItem", "Energy Shield: #");
-        new Modifier("0", "TotalFromItem", "Evasion: #");
-        new Modifier("0", "TotalFromItem", "Armour: #");
+        new Modifier("0", "TotalFromItem", "Energy Shield: #", false);
+        new Modifier("0", "TotalFromItem", "Evasion: #", false);
+        new Modifier("0", "TotalFromItem", "Armour: #", false);
         
-        new Modifier("-2", "Pseudo", "# Empty Suffix Modifiers");
-        new Modifier("-2", "Pseudo", "# Empty Prefix Modifiers");
+        new Modifier("-2", "Pseudo", "# Empty Suffix Modifiers", false);
+        new Modifier("-2", "Pseudo", "# Empty Prefix Modifiers", false);
+        
+        new Modifier("-3", "Base", "Critical Strike Chance: #%", false);
+        new Modifier("-3", "Base", "Attacks per Second: #", false);
+        new Modifier("-3", "Base", "Weapon Range: #", false);
+        new Modifier("-3", "Base", "Level: #", false);
+        new Modifier("-3", "Base", "Dex: #", false);
+        new Modifier("-3", "Base", "Str: #", false);
+        new Modifier("-3", "Base", "Int: #", false);
+        new Modifier("-3", "Base", "Item Level: #", false);
+        
         
     }
 }

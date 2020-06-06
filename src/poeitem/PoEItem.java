@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package item;
+package poeitem;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  *
  * @author charl
  */
-public class Item {
+public class PoEItem {
     
 //    public String rarity;
 //    public String customName;
@@ -44,15 +44,17 @@ public class Item {
     
 //    public String influence;
     
-    public static Item createItem(String raw)
+    public static PoEItem createItem(String raw)
     {
         if (raw == null) return null;
-        else return new Item(raw);
+        else return new PoEItem(raw);
     }
     
-    private Item(String raw)
+    private PoEItem(String raw)
     {        
-//        raw = Filters.parseMods(raw);
+        raw = parseMods(raw);
+        
+//        System.out.println(raw);
         
         String[] lines = raw.split("\\r?\\n");
         
@@ -90,8 +92,95 @@ public class Item {
             
             explicitModifiers.add(m);
         }
+    }
+    
+    public static String parseMods(String mods)
+    {
+        String[] arr = mods.split("\\R");
+        ArrayList<String> modLines = new ArrayList<String>();
+        for (String s : arr) modLines.add(s);
         
-//        print();
+        Pattern p1a = Pattern.compile("^(\\D+)(\\d+(?:\\.\\d+)?)(\\D+)$"); // 2
+        Pattern p1b = Pattern.compile("^(\\d+(?:\\.\\d+)?)(\\D+)$"); // 1
+        Pattern p1c = Pattern.compile("^(\\D+)(\\d+(?:\\.\\d+)?)$"); // 2
+        Pattern p2  = Pattern.compile("^(\\D+)(\\d+(?:\\.\\d+)?)(\\D+)(\\d+(?:\\.\\d+)?)(\\D+)$"); // 2, 4
+        
+        for (int i=0; i<modLines.size(); i++)
+        {
+            String str = modLines.get(i);
+            
+            Matcher m1a = p1a.matcher(str);
+            Matcher m1b = p1b.matcher(str);
+            Matcher m1c = p1c.matcher(str);
+            Matcher m2  = p2.matcher(str);
+            
+            if      (m1a.find()) str = swapHash(str, m1a.group(2));
+            else if (m1b.find()) str = swapHash(str, m1b.group(1));
+            else if (m1c.find()) str = swapHash(str, m1c.group(2));
+            else if (m2.find())  str = swapHash(str, m2.group(2), m2.group(4));
+            
+            modLines.set(i,str);
+            
+//            Pattern pAllWord = Pattern.compile("^([^0-9#%]*)$");
+//            Matcher mAllWord = pAllWord.matcher(str);
+            
+            modLines.set(i, modLines.get(i).replace("# added passive skill is a jewel socket", "# added passive skills are jewel sockets"));
+            if (modLines.get(i).equals("--------"))
+            {
+                modLines.remove(i);
+                i--;
+            }
+//            if (
+//                    mAllWord.find() 
+//                    || modLines.get(i).contains("(crafted)")
+//                    || modLines.get(i).contains("Physical Damage: ")
+//                    || modLines.get(i).contains("Elemental Damage: ")
+//                    || modLines.get(i).contains("Critical Strike Chance: ")
+//                    || modLines.get(i).contains("Attacks per Second: ")
+//                    || modLines.get(i).contains("Level: ")
+//                    || modLines.get(i).contains("Item Level: ")
+//                    || modLines.get(i).contains("Int: ")
+//                    || modLines.get(i).contains("Dex: ")
+//                    || modLines.get(i).contains("Str: ")
+//                    || modLines.get(i).contains("Corrupted")
+//                    || modLines.get(i).contains("Str: ")
+//                    || modLines.get(i).contains("Weapon Range: ")
+//                    || modLines.get(i).contains("(implicit)")
+//                )
+//            {
+//                modLines.remove(i);
+//                i--;
+//            }
+        }
+        String joined = String.join(String.valueOf(((char)10)), modLines);
+                
+        return joined;
+    }
+    
+    private static String swapHash(String mod, String... keys)
+    {
+        for (int i=0; i<keys.length; i++)
+        {
+            int len = keys[i].length();
+            int index = mod.indexOf(keys[i]);
+                        
+            mod = mod.substring(0, index) + "#" + mod.substring(index+len, mod.length());
+            
+            // Check for other weird things
+            
+            index = mod.indexOf(" (augmented");
+            if (index != -1)
+            {
+                mod = mod.substring(0, index);
+            }
+        }
+        
+        for (String s : keys)
+        {
+            mod += "*" + s;
+        }
+        
+        return mod;
     }
                 
     public final String getSingleString(String inputLine, String regex)
@@ -154,6 +243,6 @@ public class Item {
         }
 //        System.out.println("Corrupted: " + corrupted);
 //        System.out.println("Influence: " + influence);
-        System.out.println("- - - - - - - -");
+        System.out.println("- - - - - - - - -");
     }
 }

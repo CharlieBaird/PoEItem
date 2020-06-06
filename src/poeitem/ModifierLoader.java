@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package item;
+package poeitem;
 
 import com.google.gson.*;
 import java.io.*; 
@@ -68,40 +68,24 @@ public class ModifierLoader {
         "UtilityFlask." +
         "UtilityFlaskCritical.";
     
+    public static void loadModifiers()
+    {
+        new ModifierLoader().loadModifiersFromJson();
+    }
+    
     private String[] getJson()
     {
         String[] lines = FileNames.split("[.]");
         String[] contents = new String[lines.length];
         for (int i=0; i<lines.length; i++)
         {
-            InputStream in = getClass().getResourceAsStream("/resources/" + lines[i] + ".json");
-            InputStreamReader fr = null;
-            try {
-                fr = new InputStreamReader(in, "utf-8");
-            } catch (UnsupportedEncodingException ex) {
-                Logger.getLogger(ModifierLoader.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-            BufferedReader br = new BufferedReader(fr);
-            
-            StringBuilder content = new StringBuilder();
-
-            String output;
-            try {
-                while ((output = br.readLine()) != null) {
-                    content.append(output);
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(ModifierLoader.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            
-            contents[i] = content.toString();
+            contents[i] = contentFromTextFile("/resources/" + lines[i] + ".json");
         }
         
         return contents;
     }
     
-    public void loadModifiers()
+    private void loadModifiersFromJson()
     {
         String[] json = getJson();
         JsonParser parser = new JsonParser();
@@ -129,7 +113,7 @@ public class ModifierLoader {
                         String CorrectGroup = obj.get("CorrectGroup").getAsString();
                         String str = obj.get("str").getAsString();
 
-                        m = new Modifier(ModGenerationTypeID, CorrectGroup, str);
+                        m = new Modifier(ModGenerationTypeID, CorrectGroup, str, false);
                     }
                 }
                 else if (normalElement.isJsonObject())
@@ -148,7 +132,7 @@ public class ModifierLoader {
                         if (str != null && str.equals("1 Added Passive Skill is a Jewel Socket")) continue;
 //                        System.out.println(obj.get("id").getAsString());
 
-                        m = new Modifier(ModGenerationTypeID, CorrectGroup, str);
+                        m = new Modifier(ModGenerationTypeID, CorrectGroup, str, false);
                     }
                 }
             }
@@ -156,7 +140,58 @@ public class ModifierLoader {
         
         Modifier.genPseudo();
         
-        InputStream in = getClass().getResourceAsStream("/resources/clusternotables.txt");
+        String content = contentFromTextFile("/resources/clusternotables.txt");
+
+        String[] specNotable = content.split("[.]");
+        specNotable = removeDuplicates(specNotable);
+
+        for (String s : specNotable)
+        {                
+            Pattern p = Pattern.compile("([PS]{1})([_]+)([a-zA-Z ]*)");
+            Matcher m = p.matcher(s);
+
+            if (m.find())
+            {
+                int ps = m.group(1).equals("P") ? 1 : 2;
+                String mod = "1 Added Passive Skill is " + m.group(3);
+
+                new Modifier(String.valueOf(ps), "ClusterJewelNotable", mod, false);
+            }
+        }
+        
+        String data = contentFromTextFile("/resources/corruptedimplicits.txt");
+        genImplicits(data);
+        
+        data = contentFromTextFile("/resources/synthesisimplicits.txt");
+        genScrapedImplicits(data);
+        System.out.println(data);
+    }
+    
+    public static void genScrapedImplicits(String html) // https://pathofexile.gamepedia.com/List_of_synthesis_implicit_modifiers
+    {
+        
+    }
+    
+    private static void genImplicits(String data)
+    {
+        data = data.replaceAll("[(]", "");
+        data = data.replaceAll("[)]", "");
+        
+        Pattern p = Pattern.compile("([c|mod|]{6})([^}]+)([}}]{2})");
+        Matcher m = p.matcher(data);
+        
+        while (m.find())
+        {
+            String base = m.group(2);
+            System.out.println(base);
+            Modifier i = new Modifier("3", "Implicit", base, true);
+        }
+    }
+    
+    private static String contentFromTextFile(String endPath)
+    {
+        ModifierLoader m = new ModifierLoader();
+        InputStream in = m.getClass().getResourceAsStream(endPath);
         InputStreamReader fr = null;
         try {
             fr = new InputStreamReader(in, "utf-8");
@@ -176,26 +211,7 @@ public class ModifierLoader {
             Logger.getLogger(ModifierLoader.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        String content = contentBuilder.toString();
-
-        String[] specNotable = content.split("[.]");
-        specNotable = removeDuplicates(specNotable);
-
-        for (String s : specNotable)
-        {                
-            Pattern p = Pattern.compile("([PS]{1})([_]+)([a-zA-Z ]*)");
-            Matcher m = p.matcher(s);
-
-            if (m.find())
-            {
-                int ps = m.group(1).equals("P") ? 1 : 2;
-                String mod = "1 Added Passive Skill is " + m.group(3);
-
-                new Modifier(String.valueOf(ps), "ClusterJewelNotable", mod);
-            }
-        }
-        
-        
+        return contentBuilder.toString();
     }
     
     private static String[] removeDuplicates(String[] input)
