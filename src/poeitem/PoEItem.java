@@ -15,9 +15,9 @@ import java.util.regex.Pattern;
  */
 public class PoEItem {
     
-//    public String rarity;
-//    public String customName;
-//    public String baseType;
+    public String rarity = "";
+    public String customName = "";
+    public String baseType = "";
     
 //    public String itemType;
     public int quality = 0;
@@ -27,7 +27,7 @@ public class PoEItem {
 //    public int lightningDamage = 0;
 //    public int chaosDamage = 0;
     
-//    public String sockets;
+    public String sockets = "";
     
     public ArrayList<Modifier> baseModifiers = new ArrayList<>();
     public ArrayList<Modifier> implicitModifiers = new ArrayList<>();
@@ -58,6 +58,20 @@ public class PoEItem {
             
             ArrayList<Double> rolls = new ArrayList<>();
             
+            Matcher getRarity = Pattern.compile("([ity: ]{5})([a-zA-Z]+)").matcher(s);
+            if (getRarity.find())
+            {
+                rarity = getRarity.group(2);
+                continue;
+            }
+            
+            Matcher getSockets = Pattern.compile("([Sockets: ]{9})([RGB -]+)").matcher(s);
+            if (getSockets.find())
+            {
+                sockets = getSockets.group(2);
+                continue;
+            }
+            
             Matcher getRoll = Pattern.compile("([*]+)([(\\d+(?:\\.\\d+)?)]+)").matcher(s);
             while (getRoll.find())
             {
@@ -68,7 +82,7 @@ public class PoEItem {
             Modifier m = null;
             if (!s.contains("implicit"))
             {
-                s.replace(" (augmented)", "");
+                s = s.replace(" (augmented)", "");
                 m = Modifier.getExplicitFromStr(s);
             }
             else
@@ -238,7 +252,7 @@ public class PoEItem {
     public final void print()
     {
         System.out.println("- - - Item - - -");
-//        System.out.println(rarity + " " + customName + " " + baseType);
+        System.out.println(rarity + " " + customName + " " + baseType);
 //        System.out.println(itemType);
 //        System.out.println(
 //                physicalDamage + " phys, " + 
@@ -246,7 +260,7 @@ public class PoEItem {
 //                coldDamage + " cold, " + 
 //                lightningDamage + " lightning, " + 
 //                chaosDamage + " chaos");
-//        System.out.println("Sockets: " + sockets);
+        System.out.println("Sockets: " + sockets);
         System.out.println("Base: ");
         for (Modifier m: baseModifiers) m.print();
         System.out.println("Implicits: ");
