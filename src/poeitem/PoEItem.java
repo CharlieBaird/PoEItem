@@ -26,21 +26,14 @@ public class PoEItem {
 //    public int coldDamage = 0;
 //    public int lightningDamage = 0;
 //    public int chaosDamage = 0;
-//    public double baseCrit;
-//    public double baseAps;
-    
-//    public int levelReq;
-//    public Dictionary<String, Integer> attrReqs;
     
 //    public String sockets;
     
-//    public int itemLevel;
-    
-//    public ArrayList<Modifier> implicitModifiers = new ArrayList<>();
-    
+    public ArrayList<Modifier> baseModifiers = new ArrayList<>();
+    public ArrayList<Modifier> implicitModifiers = new ArrayList<>();
     public ArrayList<Modifier> explicitModifiers = new ArrayList<>();
     
-//    public boolean corrupted;
+    public boolean corrupted;
     
 //    public String influence;
     
@@ -55,17 +48,11 @@ public class PoEItem {
         raw = parseMods(raw);
         
 //        System.out.println(raw);
+        if(raw.contains("Corrupted")) corrupted = true;
         
         String[] lines = raw.split("\\r?\\n");
         
-        int start = 0;
-        if (lines[0].contains("Quality"))
-        {
-            quality = Integer.valueOf(lines[0].substring(lines[0].indexOf("*") + 1));
-            start++;
-        }
-        
-        for (int i=start; i<lines.length; i++)
+        for (int i=0; i<lines.length; i++)
         {
             String s = lines[i];
             
@@ -78,7 +65,16 @@ public class PoEItem {
                 s = s.replace(getRoll.group(0), "");
             }
             
-            Modifier m = Modifier.getFromStr(s);
+            Modifier m = null;
+            if (!s.contains("implicit"))
+            {
+                s.replace(" (augmented)", "");
+                m = Modifier.getExplicitFromStr(s);
+            }
+            else
+            {
+                 m = Modifier.getImplicitFromStr(s.replace(" (implicit)", ""));
+            }
             
             for (int j=0; j<rolls.size(); j++)
             {
@@ -90,7 +86,31 @@ public class PoEItem {
                 }
             }
             
-            explicitModifiers.add(m);
+            if (m == null)
+            {
+                System.out.println(s);
+            }
+            else
+            {
+                switch (m.getModGenerationTypeID())
+                {
+                    case 1:
+                    case 2:
+                        explicitModifiers.add(m);
+                        break;
+                    case 0:
+                    case -3:
+                        baseModifiers.add(m);
+                        break;
+                    case 3:
+                        implicitModifiers.add(m);
+                        break;
+                    default:
+//                        m.print();
+                        break;
+                }
+//                m.print();
+            }
         }
     }
     
@@ -125,16 +145,15 @@ public class PoEItem {
 //            Matcher mAllWord = pAllWord.matcher(str);
             
             modLines.set(i, modLines.get(i).replace("# added passive skill is a jewel socket", "# added passive skills are jewel sockets"));
-            if (modLines.get(i).equals("--------"))
-            {
-                modLines.remove(i);
-                i--;
-            }
-//            if (
+            
+//            System.out.println(modLines.get(i));
+            if (
 //                    mAllWord.find() 
 //                    || modLines.get(i).contains("(crafted)")
-//                    || modLines.get(i).contains("Physical Damage: ")
-//                    || modLines.get(i).contains("Elemental Damage: ")
+                    modLines.get(i).contains("Physical Damage: ")
+                    || modLines.get(i).contains("Elemental Damage: ")
+                    || modLines.get(i).contains("Requirements")
+                    || modLines.get(i).contains("--------")
 //                    || modLines.get(i).contains("Critical Strike Chance: ")
 //                    || modLines.get(i).contains("Attacks per Second: ")
 //                    || modLines.get(i).contains("Level: ")
@@ -146,11 +165,11 @@ public class PoEItem {
 //                    || modLines.get(i).contains("Str: ")
 //                    || modLines.get(i).contains("Weapon Range: ")
 //                    || modLines.get(i).contains("(implicit)")
-//                )
-//            {
-//                modLines.remove(i);
-//                i--;
-//            }
+                )
+            {
+                modLines.remove(i);
+                i--;
+            }
         }
         String joined = String.join(String.valueOf(((char)10)), modLines);
                 
@@ -221,27 +240,20 @@ public class PoEItem {
         System.out.println("- - - Item - - -");
 //        System.out.println(rarity + " " + customName + " " + baseType);
 //        System.out.println(itemType);
-        System.out.println("Quality: " + quality);
 //        System.out.println(
 //                physicalDamage + " phys, " + 
 //                fireDamage + " fire, " + 
 //                coldDamage + " cold, " + 
 //                lightningDamage + " lightning, " + 
 //                chaosDamage + " chaos");
-//        System.out.println("BaseCrit: " + baseCrit);
-//        System.out.println("BaseAps: " + baseAps);
-//        System.out.println("LevelReq: " + levelReq);
-//        System.out.println("AttrReqs: " + attrReqs);
 //        System.out.println("Sockets: " + sockets);
-//        System.out.println("ItemLevel: " + itemLevel);
-//        System.out.println("Implicits: ");
-//        for (Modifier m : implicitModifiers) m.print();
+        System.out.println("Base: ");
+        for (Modifier m: baseModifiers) m.print();
+        System.out.println("Implicits: ");
+        for (Modifier m : implicitModifiers) m.print();
         System.out.println("Explicits: ");
-        for (Modifier m : explicitModifiers)
-        {
-            m.print();
-        }
-//        System.out.println("Corrupted: " + corrupted);
+        for (Modifier m : explicitModifiers) m.print();
+        System.out.println("Corrupted: " + corrupted);
 //        System.out.println("Influence: " + influence);
         System.out.println("- - - - - - - - -");
     }

@@ -48,33 +48,35 @@ public class Modifier implements Serializable {
     
     public void print()
     {
-        System.out.printf("%-5s %-53s %-40s", ModGenerationTypeID, CorrectGroup, str);
-        for (double d : rolls) System.out.print(d + " ");
+        System.out.printf("%-5s %-53s %-50s", ModGenerationTypeID, CorrectGroup, str);
+        if (rolls != null)
+            for (double d : rolls)
+                System.out.print(d + " ");
         System.out.println();
         
     }
     
-    public static Modifier getFromStr(String str)
+    public static Modifier getExplicitFromStr(String str)
     {
-        if (!str.contains("implicit"))
+        for (Modifier m : AllExplicitModifiers)
         {
-            for (Modifier m : AllExplicitModifiers)
+            if (m.getStr().equals(str))
             {
-                if (m.getStr().equals(str))
-                {
-                    return m;
-                }
+                return m;
             }
         }
-        else
+        
+        return null;
+    }
+    
+    public static Modifier getImplicitFromStr(String str)
+    {
+        for (Modifier m : AllImplicitModifiers)
         {
-            str = str.replace(" (implicit)", "");
-            for (Modifier m : AllImplicitModifiers)
+            if (m.getStr().equals(str))
             {
-                if (m.getStr().equals(str))
-                {
-                    return m;
-                }
+//                System.out.println(true);
+                return m;
             }
         }
         
@@ -99,9 +101,14 @@ public class Modifier implements Serializable {
         str = removeRolls(str);
         this.str = str;
         
-        for (Modifier m : AllExplicitModifiers)
-            if (m.str.equals(this.str))
-                return;
+        if (!isImplicit)
+            for (Modifier explModifier : AllExplicitModifiers)
+                if (explModifier.str.equals(this.str))
+                    return;
+        else
+            for (Modifier implModifier : AllImplicitModifiers)
+                if (implModifier.str.equals(this.str)) // todo get rid of other checks
+                    return;
         
         int count = str.length() - str.replaceAll("#", "").length();
         rolls = new double[count];
@@ -123,11 +130,11 @@ public class Modifier implements Serializable {
         pseudoSupportedModifiers = new Modifier[pseudoSupportedModifiersStrs.length];
         for (int i=0; i<pseudoSupportedModifiersStrs.length; i++)
         {
-            pseudoSupportedModifiers[i] = Modifier.getFromStr(pseudoSupportedModifiersStrs[i]);
+            pseudoSupportedModifiers[i] = Modifier.getExplicitFromStr(pseudoSupportedModifiersStrs[i]);
         }
     }
         
-    public String removeRolls(String str)
+    public static String removeRolls(String str)
     {
         Pattern p = Pattern.compile("(\\d+(?:\\.\\d+)?)");
         Matcher m = p.matcher(str);
@@ -150,7 +157,7 @@ public class Modifier implements Serializable {
         
         return str;
     }
-    
+        
     @Override
     public boolean equals(Object that)
     {
@@ -187,6 +194,7 @@ public class Modifier implements Serializable {
         new Modifier("-2", "Pseudo", "# Empty Suffix Modifiers", false);
         new Modifier("-2", "Pseudo", "# Empty Prefix Modifiers", false);
         
+        new Modifier("-3", "Base", "Quality: #%", false);
         new Modifier("-3", "Base", "Critical Strike Chance: #%", false);
         new Modifier("-3", "Base", "Attacks per Second: #", false);
         new Modifier("-3", "Base", "Weapon Range: #", false);

@@ -158,21 +158,50 @@ public class ModifierLoader {
                 new Modifier(String.valueOf(ps), "ClusterJewelNotable", mod, false);
             }
         }
-        
-        String data = contentFromTextFile("/resources/corruptedimplicits.txt");
-        genImplicits(data);
+        String data;
+        data = contentFromTextFile("/resources/corruptedimplicits.txt");
+        genCorruptedImplicits(data);
         
         data = contentFromTextFile("/resources/synthesisimplicits.txt");
-        genScrapedImplicits(data);
-        System.out.println(data);
-    }
-    
-    public static void genScrapedImplicits(String html) // https://pathofexile.gamepedia.com/List_of_synthesis_implicit_modifiers
-    {
+        genSynthesisImplicits(data);
         
+        data = contentFromTextFile("/resources/normalimplicits.txt");
+        genNormalImplicits(data);
     }
     
-    private static void genImplicits(String data)
+    private static void genNormalImplicits(String data)
+    {
+        String[] lines = data.split("[*]");
+        for (String s : lines)
+        {
+//            System.out.println(s);
+            Modifier from = Modifier.getImplicitFromStr(Modifier.removeRolls(s));
+//            if (from != null) from.print();
+            
+            if (from == null)
+            {
+                Modifier i = new Modifier("3", "Implicit", s, true);
+//                i.print();
+            }
+        }
+    }
+    
+    private static void genSynthesisImplicits(String html) // https://pathofexile.gamepedia.com/List_of_synthesis_implicit_modifiers
+    {
+        html = html.replaceAll("[\\[\\]]{2}", "");
+        Matcher m = Pattern.compile("([value=\"]{7})([-+()0-9a-zA-Z ]+)([\" cl]{4})").matcher(html);
+        
+        while (m.find())
+        {
+            String base = m.group(2);
+            if (Modifier.getImplicitFromStr(Modifier.removeRolls(base)) == null)
+            {
+                Modifier i = new Modifier("3", "Implicit", base, true);
+            }
+        }
+    }
+    
+    private static void genCorruptedImplicits(String data)
     {
         data = data.replaceAll("[(]", "");
         data = data.replaceAll("[)]", "");
@@ -183,8 +212,10 @@ public class ModifierLoader {
         while (m.find())
         {
             String base = m.group(2);
-            System.out.println(base);
-            Modifier i = new Modifier("3", "Implicit", base, true);
+            if (Modifier.getImplicitFromStr(Modifier.removeRolls(base)) == null)
+            {
+                Modifier i = new Modifier("3", "Implicit", base, true);
+            }
         }
     }
     
