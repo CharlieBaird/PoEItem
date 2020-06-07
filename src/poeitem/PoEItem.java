@@ -21,11 +21,6 @@ public class PoEItem {
     
     public String itemType = "";
     public String sparkLine = "";
-//    public int physicalDamage = 0;
-//    public int fireDamage = 0;
-//    public int coldDamage = 0;
-//    public int lightningDamage = 0;
-//    public int chaosDamage = 0;
     
     public String sockets = "";
     
@@ -46,11 +41,10 @@ public class PoEItem {
     private PoEItem(String raw)
     {        
         raw = parseMods(raw);
-//        System.out.println(raw);
         if(raw.contains("Corrupted\n"))
         {
             corrupted = true;
-//            raw = raw.replace("Corrupted", "");
+            raw = raw.replace("Corrupted\n", "");
         }
         
         Matcher getRarity = Pattern.compile("([ity: ]{5})([a-zA-Z]+)").matcher(raw);
