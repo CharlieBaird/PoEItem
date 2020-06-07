@@ -19,8 +19,7 @@ public class PoEItem {
     public String customName = "";
     public String baseType = "";
     
-//    public String itemType;
-    public int quality = 0;
+    public String itemType = "";
 //    public int physicalDamage = 0;
 //    public int fireDamage = 0;
 //    public int coldDamage = 0;
@@ -48,29 +47,37 @@ public class PoEItem {
         raw = parseMods(raw);
         
 //        System.out.println(raw);
-        if(raw.contains("Corrupted")) corrupted = true;
+        if(raw.contains("Corrupted"))
+        {
+            corrupted = true;
+            raw = raw.replace("Corrupted", "");
+        }
+        
+        Matcher getRarity = Pattern.compile("([ity: ]{5})([a-zA-Z]+)").matcher(raw);
+        if (getRarity.find())
+        {
+            rarity = getRarity.group(2);
+            raw = raw.replace("Rar" + getRarity.group(0)+"\n", "");
+        }
+
+        Matcher getSockets = Pattern.compile("([Sockets: ]{9})([RGB -]+)").matcher(raw);
+        if (getSockets.find())
+        {
+            sockets = getSockets.group(2);
+            raw = raw.replace(getSockets.group(0)+"\n", "");
+        }
+        
+//        System.out.println(raw);
         
         String[] lines = raw.split("\\r?\\n");
+        
+        StringBuilder UnusedBuilder = new StringBuilder();
         
         for (int i=0; i<lines.length; i++)
         {
             String s = lines[i];
             
             ArrayList<Double> rolls = new ArrayList<>();
-            
-            Matcher getRarity = Pattern.compile("([ity: ]{5})([a-zA-Z]+)").matcher(s);
-            if (getRarity.find())
-            {
-                rarity = getRarity.group(2);
-                continue;
-            }
-            
-            Matcher getSockets = Pattern.compile("([Sockets: ]{9})([RGB -]+)").matcher(s);
-            if (getSockets.find())
-            {
-                sockets = getSockets.group(2);
-                continue;
-            }
             
             Matcher getRoll = Pattern.compile("([*]+)([(\\d+(?:\\.\\d+)?)]+)").matcher(s);
             while (getRoll.find())
@@ -102,7 +109,8 @@ public class PoEItem {
             
             if (m == null)
             {
-                System.out.println(s);
+//                System.out.println("'" + s + "'");
+                UnusedBuilder.append(s).append("&");
             }
             else
             {
@@ -126,6 +134,14 @@ public class PoEItem {
 //                m.print();
             }
         }
+        
+        String[] unusedLines = UnusedBuilder.toString().split("[&]");
+        
+        customName = unusedLines[0];
+        baseType = unusedLines[1];
+        itemType = unusedLines[2];
+        
+        
     }
     
     public static String parseMods(String mods)
@@ -155,12 +171,8 @@ public class PoEItem {
             
             modLines.set(i,str);
             
-//            Pattern pAllWord = Pattern.compile("^([^0-9#%]*)$");
-//            Matcher mAllWord = pAllWord.matcher(str);
-            
             modLines.set(i, modLines.get(i).replace("# added passive skill is a jewel socket", "# added passive skills are jewel sockets"));
             
-//            System.out.println(modLines.get(i));
             if (
 //                    mAllWord.find() 
 //                    || modLines.get(i).contains("(crafted)")
@@ -168,17 +180,6 @@ public class PoEItem {
                     || modLines.get(i).contains("Elemental Damage: ")
                     || modLines.get(i).contains("Requirements")
                     || modLines.get(i).contains("--------")
-//                    || modLines.get(i).contains("Critical Strike Chance: ")
-//                    || modLines.get(i).contains("Attacks per Second: ")
-//                    || modLines.get(i).contains("Level: ")
-//                    || modLines.get(i).contains("Item Level: ")
-//                    || modLines.get(i).contains("Int: ")
-//                    || modLines.get(i).contains("Dex: ")
-//                    || modLines.get(i).contains("Str: ")
-//                    || modLines.get(i).contains("Corrupted")
-//                    || modLines.get(i).contains("Str: ")
-//                    || modLines.get(i).contains("Weapon Range: ")
-//                    || modLines.get(i).contains("(implicit)")
                 )
             {
                 modLines.remove(i);
@@ -253,7 +254,7 @@ public class PoEItem {
     {
         System.out.println("- - - Item - - -");
         System.out.println(rarity + " " + customName + " " + baseType);
-//        System.out.println(itemType);
+        System.out.println(itemType);
 //        System.out.println(
 //                physicalDamage + " phys, " + 
 //                fireDamage + " fire, " + 
