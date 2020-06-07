@@ -20,6 +20,7 @@ public class PoEItem {
     public String baseType = "";
     
     public String itemType = "";
+    public String sparkLine = "";
 //    public int physicalDamage = 0;
 //    public int fireDamage = 0;
 //    public int coldDamage = 0;
@@ -46,10 +47,10 @@ public class PoEItem {
     {        
         raw = parseMods(raw);
 //        System.out.println(raw);
-        if(raw.contains("Corrupted"))
+        if(raw.contains("Corrupted\n"))
         {
             corrupted = true;
-            raw = raw.replace("Corrupted", "");
+//            raw = raw.replace("Corrupted", "");
         }
         
         Matcher getRarity = Pattern.compile("([ity: ]{5})([a-zA-Z]+)").matcher(raw);
@@ -115,6 +116,7 @@ public class PoEItem {
                 }
             }
             
+            
             if (m == null)
             {
 //                System.out.println("'" + s + "'");
@@ -156,7 +158,14 @@ public class PoEItem {
                 {
                     itemType = unusedLines[2];
                 }
-            } catch (ArrayIndexOutOfBoundsException e) {}
+            } catch (ArrayIndexOutOfBoundsException e) {
+                itemType = "";
+            }
+            try {
+                sparkLine = unusedLines[3];
+            } catch (ArrayIndexOutOfBoundsException e) {
+                sparkLine = "";
+            }
         }
         else
         {
@@ -167,6 +176,11 @@ public class PoEItem {
                     itemType = unusedLines[1];
                 }
             } catch (ArrayIndexOutOfBoundsException e) {}
+            try {
+                sparkLine = unusedLines[2];
+            } catch (ArrayIndexOutOfBoundsException e) {
+                sparkLine = "";
+            }
         }
     }
     
@@ -214,7 +228,7 @@ public class PoEItem {
         }
         String joined = String.join(String.valueOf(((char)10)), modLines);
                 
-        return joined;
+        return joined + "\n";
     }
     
     private static String swapHash(String mod, String... keys)
@@ -261,8 +275,8 @@ public class PoEItem {
         for (Modifier em : explicitModifiers)
         {
             int type = em.getModGenerationTypeID();
-            if (type == 1) totalPrefixSuffix[0]++;
-            else if (type == 2) totalPrefixSuffix[1]++;
+            if (type == 1 || type == 4) totalPrefixSuffix[0]++;
+            else if (type == 2 || type == 5) totalPrefixSuffix[1]++;
         }
         
         return totalPrefixSuffix;
@@ -271,6 +285,7 @@ public class PoEItem {
     public final void print()
     {
         System.out.println("- - - Item - - -");
+        
         System.out.println(rarity + " " + customName + " " + baseType);
         if (!itemType.equals(""))
             System.out.println(itemType);
@@ -280,7 +295,7 @@ public class PoEItem {
 //                coldDamage + " cold, " + 
 //                lightningDamage + " lightning, " + 
 //                chaosDamage + " chaos");
-        System.out.println("Sockets: " + sockets);
+        if (!sockets.isEmpty()) System.out.println("Sockets: " + sockets);
         System.out.println("Base: ");
         for (Modifier m: baseModifiers) m.print();
         if (!implicitModifiers.isEmpty())
@@ -295,11 +310,17 @@ public class PoEItem {
         }
         System.out.println("Corrupted: " + corrupted);
         
-        System.out.println("- - - - - - - - -");
         if (!influences.isEmpty())
         {
             System.out.println("Influence: ");
             for (String m: influences) System.out.println("- " + m);
         }
+        
+        if (!sparkLine.isEmpty())
+        {
+            System.out.println(sparkLine);
+        }
+        
+        System.out.println("- - - - - - - - -");
     }
 }
