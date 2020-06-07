@@ -110,10 +110,9 @@ public class ModifierLoader {
                         JsonObject obj = normal.get(j).getAsJsonObject();
 
                         String ModGenerationTypeID = obj.get("ModGenerationTypeID").getAsString();
-                        String CorrectGroup = obj.get("CorrectGroup").getAsString();
                         String str = obj.get("str").getAsString();
 
-                        m = new Modifier(ModGenerationTypeID, CorrectGroup, str, false);
+                        m = new Modifier(ModGenerationTypeID, "Modifier", str, false);
                     }
                 }
                 else if (normalElement.isJsonObject())
@@ -125,14 +124,11 @@ public class ModifierLoader {
                         JsonObject obj = normal.get(s).getAsJsonObject();
 
                         String ModGenerationTypeID = obj.get("ModGenerationTypeID").getAsString();
-                        String CorrectGroup = obj.get("CorrectGroup").getAsString();
                         String str = obj.get("str").getAsString();
                         
-                        // ignore:
                         if (str != null && str.equals("1 Added Passive Skill is a Jewel Socket")) continue;
-//                        System.out.println(obj.get("id").getAsString());
 
-                        m = new Modifier(ModGenerationTypeID, CorrectGroup, str, false);
+                        m = new Modifier(ModGenerationTypeID, "Modifier", str, false);
                     }
                 }
             }
@@ -167,6 +163,57 @@ public class ModifierLoader {
         
         data = contentFromTextFile("/resources/normalimplicits.txt");
         genNormalImplicits(data);
+        
+        data = contentFromTextFile("/resources/helenacrafted.txt");
+        genCrafted(data);
+        
+        data = contentFromTextFile("/resources/juncrafted.txt");
+        genCrafted(data);
+        
+        data = contentFromTextFile("/resources/syndicatecrafted.txt");
+        genCrafted(data);
+    }
+            
+    private static void genCrafted(String data)
+    {
+        String[] sections = data.split("</tr>");
+        for (String s : sections)
+        {
+            Matcher m = Pattern.compile("(<a href=\"\\/[_a-zA-Z= \"-]+>)").matcher(s);
+            while (m.find())
+            {
+                s = s.replace(m.group(0), "");
+            }
+            
+            m = Pattern.compile("</a>").matcher(s);
+            while (m.find())
+            {
+                s = s.replace(m.group(0), "");
+            }
+            
+            ArrayList<String> craft = new ArrayList<>();
+            String affixType = null;
+            
+            m = Pattern.compile("([_Stats\\\">]{8}|[<br>]{4})([- +%()0-9a-zA-Z.']+)").matcher(s);
+            while (m.find())
+            {
+                craft.add(m.group(2));
+            }
+            
+            m = Pattern.compile("(field_Affix_type\">)([a-zA-Z]+)").matcher(s);
+            while (m.find())
+            {
+                affixType = m.group(2).equals("Prefix") ? "4" : "5";
+            }
+            
+//            System.out.println(s);
+            for (String cr : craft)
+            {
+//                System.out.println(cr);
+                Modifier modifier = new Modifier(affixType, "Crafted", cr + " [crafted]", false);
+//                modifier.print();
+            }
+        }
     }
     
     private static void genNormalImplicits(String data)
@@ -174,15 +221,8 @@ public class ModifierLoader {
         String[] lines = data.split("[*]");
         for (String s : lines)
         {
-//            System.out.println(s);
-            Modifier from = Modifier.getImplicitFromStr(Modifier.removeRolls(s));
-//            if (from != null) from.print();
-            
-            if (from == null)
-            {
-                Modifier i = new Modifier("3", "Implicit", s, true);
-//                i.print();
-            }
+            Modifier i = new Modifier("3", "Implicit", s, true);
+//            i.print();
         }
     }
     
@@ -194,10 +234,7 @@ public class ModifierLoader {
         while (m.find())
         {
             String base = m.group(2);
-            if (Modifier.getImplicitFromStr(Modifier.removeRolls(base)) == null)
-            {
-                Modifier i = new Modifier("3", "Implicit", base, true);
-            }
+            Modifier i = new Modifier("3", "Implicit", base, true);
         }
     }
     
@@ -212,10 +249,7 @@ public class ModifierLoader {
         while (m.find())
         {
             String base = m.group(2);
-            if (Modifier.getImplicitFromStr(Modifier.removeRolls(base)) == null)
-            {
-                Modifier i = new Modifier("3", "Implicit", base, true);
-            }
+            Modifier i = new Modifier("3", "Implicit", base, true);
         }
     }
     

@@ -34,7 +34,7 @@ public class PoEItem {
     
     public boolean corrupted;
     
-//    public String influence;
+    public ArrayList<String> influences = new ArrayList<>();
     
     public static PoEItem createItem(String raw)
     {
@@ -45,7 +45,6 @@ public class PoEItem {
     private PoEItem(String raw)
     {        
         raw = parseMods(raw);
-        
 //        System.out.println(raw);
         if(raw.contains("Corrupted"))
         {
@@ -60,11 +59,19 @@ public class PoEItem {
             raw = raw.replace("Rar" + getRarity.group(0)+"\n", "");
         }
 
-        Matcher getSockets = Pattern.compile("([Sockets: ]{9})([RGB -]+)").matcher(raw);
+        Matcher getSockets = Pattern.compile("([Sockets: ]{9})([RGBW -]+)").matcher(raw);
         if (getSockets.find())
         {
             sockets = getSockets.group(2);
             raw = raw.replace(getSockets.group(0)+"\n", "");
+        }
+        
+        Matcher getInfluence = Pattern.compile("([Hunter|Shaper|Elder|Crusader|Warlord|Redeemer]{5,8})([ Item]{5})").matcher(raw);
+        while (getInfluence.find())
+        {
+            influences.add(getInfluence.group(1));
+            raw = raw.replace(getInfluence.group(0)+"\n", "");
+            raw = raw.replace(getInfluence.group(0), "");
         }
         
 //        System.out.println(raw);
@@ -90,6 +97,7 @@ public class PoEItem {
             if (!s.contains("implicit"))
             {
                 s = s.replace(" (augmented)", "");
+                s = s.replace(" (crafted)", " [crafted]");
                 m = Modifier.getExplicitFromStr(s);
             }
             else
@@ -118,6 +126,8 @@ public class PoEItem {
                 {
                     case 1:
                     case 2:
+                    case 4:
+                    case 5:
                         explicitModifiers.add(m);
                         break;
                     case 0:
@@ -137,17 +147,33 @@ public class PoEItem {
         
         String[] unusedLines = UnusedBuilder.toString().split("[&]");
         
-        customName = unusedLines[0];
-        baseType = unusedLines[1];
-        itemType = unusedLines[2];
-        
-        
+        if (rarity.equals("Rare"))
+        {
+            customName = unusedLines[0];
+            baseType = unusedLines[1];
+            try {
+                if (!unusedLines[2].equals("\n"))
+                {
+                    itemType = unusedLines[2];
+                }
+            } catch (ArrayIndexOutOfBoundsException e) {}
+        }
+        else
+        {
+            customName = unusedLines[0];
+            try {
+                if (!unusedLines[1].equals("\n"))
+                {
+                    itemType = unusedLines[1];
+                }
+            } catch (ArrayIndexOutOfBoundsException e) {}
+        }
     }
     
     public static String parseMods(String mods)
     {
         String[] arr = mods.split("\\R");
-        ArrayList<String> modLines = new ArrayList<String>();
+        ArrayList<String> modLines = new ArrayList<>();
         for (String s : arr) modLines.add(s);
         
         Pattern p1a = Pattern.compile("^(\\D+)(\\d+(?:\\.\\d+)?)(\\D+)$"); // 2
@@ -216,14 +242,6 @@ public class PoEItem {
         
         return mod;
     }
-                
-    public final String getSingleString(String inputLine, String regex)
-    {
-        Matcher m = Pattern.compile(regex).matcher(inputLine);
-        if (m.find())
-            return m.group(3);
-        return null;
-    }
     
     public double getValue(String s)
     {
@@ -254,7 +272,8 @@ public class PoEItem {
     {
         System.out.println("- - - Item - - -");
         System.out.println(rarity + " " + customName + " " + baseType);
-        System.out.println(itemType);
+        if (!itemType.equals(""))
+            System.out.println(itemType);
 //        System.out.println(
 //                physicalDamage + " phys, " + 
 //                fireDamage + " fire, " + 
@@ -264,12 +283,23 @@ public class PoEItem {
         System.out.println("Sockets: " + sockets);
         System.out.println("Base: ");
         for (Modifier m: baseModifiers) m.print();
-        System.out.println("Implicits: ");
-        for (Modifier m : implicitModifiers) m.print();
-        System.out.println("Explicits: ");
-        for (Modifier m : explicitModifiers) m.print();
+        if (!implicitModifiers.isEmpty())
+        {
+            System.out.println("Implicits: ");
+            for (Modifier m : implicitModifiers) m.print();
+        }
+        if (!explicitModifiers.isEmpty())
+        {
+            System.out.println("Explicits: ");
+            for (Modifier m : explicitModifiers) m.print();
+        }
         System.out.println("Corrupted: " + corrupted);
-//        System.out.println("Influence: " + influence);
+        
         System.out.println("- - - - - - - - -");
+        if (!influences.isEmpty())
+        {
+            System.out.println("Influence: ");
+            for (String m: influences) System.out.println("- " + m);
+        }
     }
 }

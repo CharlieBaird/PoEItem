@@ -48,7 +48,10 @@ public class Modifier implements Serializable {
     
     public void print()
     {
-        System.out.printf("%-5s %-53s %-50s", ModGenerationTypeID, CorrectGroup, str);
+        int ModGenerationTypeIDDisplay = ModGenerationTypeID;
+        if (ModGenerationTypeID == 4) ModGenerationTypeIDDisplay = 1;
+        else if (ModGenerationTypeID == 5) ModGenerationTypeIDDisplay = 2;
+        System.out.printf("%-5s %-20s %-50s", ModGenerationTypeIDDisplay, CorrectGroup, str);
         if (rolls != null)
             for (double d : rolls)
                 System.out.print(d + " ");
@@ -85,29 +88,50 @@ public class Modifier implements Serializable {
     
     public Modifier(String ModGenerationTypeID, String CorrectGroup, String str, boolean isImplicit)
     {
-        this.ModGenerationTypeID = Integer.valueOf(ModGenerationTypeID);
+        try {
+            this.ModGenerationTypeID = Integer.valueOf(ModGenerationTypeID);
+        } catch (NumberFormatException e) {
+            System.out.println("Threw a NumberFormatException");
+            return;
+        }
         this.CorrectGroup = CorrectGroup;
         
         str = str.replaceAll("<span class='mod-value'>", "");
         str = str.replaceAll("</span>", "");
         str = str.replaceAll("&ndash;", "-");
-        str = str.replaceAll("\\(", "");
-        str = str.replaceAll("\\)", "");
+        str = str.replaceAll("[\\(\\)]", "");
         if (str.contains("<br"))
             str = str.substring(0,str.indexOf("<br"));
-        
-//        str = str.toLowerCase();
         
         str = removeRolls(str);
         this.str = str;
         
         if (!isImplicit)
+        {
+//            if (CorrectGroup.equals("Crafted")) System.out.println(str);
             for (Modifier explModifier : AllExplicitModifiers)
+            {
                 if (explModifier.str.equals(this.str))
-                    return;
+                {
+                    if (this.CorrectGroup.equals("Crafted"))
+                    {
+                        if (explModifier.CorrectGroup.equals("Crafted"))
+                        {
+//                            System.out.println(str);
+                            return;
+                        }
+                    }
+                    else
+                    {
+//                        System.out.println(str);
+                        return;
+                    }
+                }
+            }
+        }
         else
             for (Modifier implModifier : AllImplicitModifiers)
-                if (implModifier.str.equals(this.str)) // todo get rid of other checks
+                if (implModifier.str.equals(this.str))
                     return;
         
         int count = str.length() - str.replaceAll("#", "").length();
@@ -187,14 +211,14 @@ public class Modifier implements Serializable {
             "+#% to Chaos Resistance"
         });
         
-        new Modifier("0", "TotalFromItem", "Energy Shield: #", false);
-        new Modifier("0", "TotalFromItem", "Evasion: #", false);
-        new Modifier("0", "TotalFromItem", "Armour: #", false);
+        new Modifier("0", "Total", "Energy Shield: #", false);
+        new Modifier("0", "Total", "Evasion Rating: #", false);
+        new Modifier("0", "Total", "Armour: #", false);
         
         new Modifier("-2", "Pseudo", "# Empty Suffix Modifiers", false);
         new Modifier("-2", "Pseudo", "# Empty Prefix Modifiers", false);
         
-        new Modifier("-3", "Base", "Quality: #%", false);
+        new Modifier("-3", "Base", "Quality: +#%", false);
         new Modifier("-3", "Base", "Critical Strike Chance: #%", false);
         new Modifier("-3", "Base", "Attacks per Second: #", false);
         new Modifier("-3", "Base", "Weapon Range: #", false);
@@ -204,6 +228,10 @@ public class Modifier implements Serializable {
         new Modifier("-3", "Base", "Int: #", false);
         new Modifier("-3", "Base", "Item Level: #", false);
         
-        
+        new Modifier("5", "Crafted", "Prefixes Cannot Be Changed [crafted]", false);
+        new Modifier("4", "Crafted", "Suffixes Cannot Be Changed [crafted]", false);
+        new Modifier("5", "Crafted", "Can have up to 3 Crafted Modifiers [crafted]", false);
+        new Modifier("5", "Crafted", "Cannot roll Attack Modifiers [crafted]", false);
+        new Modifier("5", "Crafted", "Cannot roll Caster Modifiers [crafted]", false);
     }
 }
