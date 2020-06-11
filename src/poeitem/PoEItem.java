@@ -34,11 +34,19 @@ public class PoEItem {
     
     public static PoEItem createItem(String raw)
     {
-        if (raw == null) return null;
+//        if (raw == null
+//            || raw.contains("Rarity: Unique")
+//            || raw.contains("Rarity: Currency")
+//            || raw.contains("Map Tier: ")
+//            || raw.contains("Rarity: Divination Card")
+//            || raw.contains()
+//            ) return null;
+        if (raw == null || (!raw.contains("Rarity: Normal") && !raw.contains("Rarity: Magic") && !raw.contains("Rarity: Rare"))) return null;
+        
         else return new PoEItem(raw);
     }
     
-    private PoEItem(String raw)
+    protected PoEItem(String raw)
     {        
         raw = parseMods(raw);
         if(raw.contains("Corrupted\n"))
@@ -69,8 +77,6 @@ public class PoEItem {
             raw = raw.replace(getInfluence.group(0), "");
         }
         
-//        System.out.println(raw);
-        
         String[] lines = raw.split("\\r?\\n");
         
         StringBuilder UnusedBuilder = new StringBuilder();
@@ -93,6 +99,7 @@ public class PoEItem {
             {
                 s = s.replace(" (augmented)", "");
                 s = s.replace(" (crafted)", " [crafted]");
+//                System.out.println("--" + s + "--");
                 m = Modifier.getExplicitFromStr(s);
             }
             else
@@ -105,7 +112,7 @@ public class PoEItem {
                 try {
                     m.rolls[j] = rolls.get(j);
                 } catch (NullPointerException e) {
-                    System.out.println("Modifier not found: '" + s + "'");
+//                    System.out.println("Modifier not found: '" + s + "'");
                     return;
                 }
             }
