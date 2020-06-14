@@ -226,6 +226,11 @@ public class Modifier implements Serializable {
         new Modifier("-3", "Base", "Dex: #", false);
         new Modifier("-3", "Base", "Str: #", false);
         new Modifier("-3", "Base", "Int: #", false);
+        new Modifier("-3", "Base", "Map Tier: #", false);
+        new Modifier("-3", "Base", "Item Level: #", false);
+        new Modifier("-3", "Base", "Item Quantity: +#%", false);
+        new Modifier("-3", "Base", "Item Rarity: +#%", false);
+        new Modifier("-3", "Base", "Monster Pack Size: +#%", false);
         new Modifier("-3", "Base", "Item Level: #", false);
         
         new Modifier("5", "Crafted", "Prefixes Cannot Be Changed [crafted]", false);

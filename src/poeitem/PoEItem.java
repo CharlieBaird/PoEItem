@@ -54,7 +54,7 @@ public class PoEItem {
             corrupted = true;
             raw = raw.replace("Corrupted\n", "");
         }
-        
+                
         Matcher getRarity = Pattern.compile("([ity: ]{5})([a-zA-Z]+)").matcher(raw);
         if (getRarity.find())
         {
@@ -101,6 +101,8 @@ public class PoEItem {
                 s = s.replace(" (crafted)", " [crafted]");
 //                System.out.println("--" + s + "--");
                 m = Modifier.getExplicitFromStr(s);
+//                if (m == null) System.out.println(s + " was null");
+//                else m.print();
             }
             else
             {

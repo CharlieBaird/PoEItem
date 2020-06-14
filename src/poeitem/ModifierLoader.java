@@ -172,6 +172,12 @@ public class ModifierLoader {
         
         data = contentFromTextFile("/resources/syndicatecrafted.txt");
         genCrafted(data);
+        
+        data = contentFromTextFile("/resources/mapprefixes.txt");
+        genMapPrefixes(data);
+        
+        data = contentFromTextFile("/resources/mapsuffixes.txt");
+        genMapSuffixes(data);
     }
             
     private static void genCrafted(String data)
@@ -235,6 +241,46 @@ public class ModifierLoader {
         {
             String base = m.group(2);
             Modifier i = new Modifier("3", "Implicit", base, true);
+        }
+    }
+    
+    private static void genMapPrefixes(String html)
+    {
+        html = html.replaceAll("[\\[\\]]{2}", "");
+        html = html.replaceAll("[a-zA-Z]+[|]{1}", "");
+        Matcher m = Pattern.compile("([value=\"]{7})([-+%()0-9a-zA-Z. ]+)([<b\" ]{2})").matcher(html);
+        
+        while (m.find())
+        {
+            String base = m.group(2);
+            Modifier i = new Modifier("1", "MapMod", base, false);
+        }
+        
+        m = Pattern.compile("([value=\\\"]{7})([-+%()0-9a-zA-Z. ]+)[<br>]{4}([-+%()0-9a-zA-Z. ]+)([\" \n]+)").matcher(html);
+        while (m.find())
+        {
+            String base = m.group(3);
+            Modifier i = new Modifier("1", "MapMod", base, false);
+        }
+    }
+    
+    private static void genMapSuffixes(String html)
+    {
+        html = html.replaceAll("[\\[\\]]{2}", "");
+        html = html.replaceAll("[a-zA-Z]+[|]{1}", "");
+        Matcher m = Pattern.compile("([value=\"]{7})([-+%()0-9a-zA-Z. ]+)([<b\" ]{2})").matcher(html);
+        
+        while (m.find())
+        {
+            String base = m.group(2);
+            Modifier i = new Modifier("2", "MapMod", base, false);
+        }
+        
+        m = Pattern.compile("([value=\\\"]{7})([-+%()0-9a-zA-Z. ]+)[<br>]{4}([-+%()0-9a-zA-Z. ]+)([\" \n]+)").matcher(html);
+        while (m.find())
+        {
+            String base = m.group(3);
+            Modifier i = new Modifier("2", "MapMod", base, false);
         }
     }
     
