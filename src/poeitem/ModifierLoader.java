@@ -248,7 +248,7 @@ public class ModifierLoader {
     {
         html = html.replaceAll("[\\[\\]]{2}", "");
         html = html.replaceAll("[a-zA-Z]+[|]{1}", "");
-        Matcher m = Pattern.compile("([value=\"]{7})([-+%()0-9a-zA-Z. ]+)([<b\" ]{2})").matcher(html);
+        Matcher m = Pattern.compile("([value=\"]{7})([-,+%()0-9a-zA-Z. ]+)([<b\" ]{2})").matcher(html);
         
         while (m.find())
         {
@@ -256,7 +256,7 @@ public class ModifierLoader {
             Modifier i = new Modifier("1", "MapMod", base, false);
         }
         
-        m = Pattern.compile("([value=\\\"]{7})([-+%()0-9a-zA-Z. ]+)[<br>]{4}([-+%()0-9a-zA-Z. ]+)([\" \n]+)").matcher(html);
+        m = Pattern.compile("([value=\\\"]{7})([-,+%()0-9a-zA-Z. ]+)[<br>]{4}([-,+%()0-9a-zA-Z. ]+)([\" \n]+)").matcher(html);
         while (m.find())
         {
             String base = m.group(3);
@@ -268,7 +268,7 @@ public class ModifierLoader {
     {
         html = html.replaceAll("[\\[\\]]{2}", "");
         html = html.replaceAll("[a-zA-Z]+[|]{1}", "");
-        Matcher m = Pattern.compile("([value=\"]{7})([-+%()0-9a-zA-Z. ]+)([<b\" ]{2})").matcher(html);
+        Matcher m = Pattern.compile("([value=\"]{7})([-,+%()0-9a-zA-Z. ]+)([<b\" ]{2})").matcher(html);
         
         while (m.find())
         {
@@ -276,7 +276,7 @@ public class ModifierLoader {
             Modifier i = new Modifier("2", "MapMod", base, false);
         }
         
-        m = Pattern.compile("([value=\\\"]{7})([-+%()0-9a-zA-Z. ]+)[<br>]{4}([-+%()0-9a-zA-Z. ]+)([\" \n]+)").matcher(html);
+        m = Pattern.compile("([value=\\\"]{7})([-,+%()0-9a-zA-Z. ]+)[<br>]{4}([-,+%()0-9a-zA-Z. ]+)([\" \n]+)").matcher(html);
         while (m.find())
         {
             String base = m.group(3);
