@@ -54,8 +54,6 @@ public class PoEItem {
             corrupted = true;
             raw = raw.replace("Corrupted\n", "");
         }
-        
-        System.out.println(raw);
                 
         Matcher getRarity = Pattern.compile("([ity: ]{5})([a-zA-Z]+)").matcher(raw);
         if (getRarity.find())
@@ -93,7 +91,7 @@ public class PoEItem {
             while (getRoll.find())
             {
                 rolls.add(Double.valueOf(getRoll.group(2)));
-                System.out.println(s + getRoll.group(0));
+//                System.out.println(s + getRoll.group(0));
                 s = s.replaceFirst(getRoll.group(0), "");
             }
             
@@ -264,11 +262,11 @@ public class PoEItem {
             
             // Check for other weird things
             
-            index = mod.indexOf(" (augmented");
-            if (index != -1)
-            {
-                mod = mod.substring(0, index);
-            }
+//            index = mod.indexOf(" (augmented");
+//            if (index != -1)
+//            {
+//                mod = mod.substring(0, index);
+//            }
         }
         
         for (String s : keys)

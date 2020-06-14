@@ -105,8 +105,17 @@ public class Modifier implements Serializable {
         str = str.replaceAll("</span>", "");
         str = str.replaceAll("&ndash;", "-");
         str = str.replaceAll("[\\(\\)]", "");
-        if (str.contains("<br"))
-            str = str.substring(0,str.indexOf("<br"));
+        str = str.replaceAll("<br/>", "<br>");
+        String[] jointModifier = str.split("<br>");
+        
+        if (jointModifier.length > 1)
+        {
+            str = jointModifier[0];
+            for (int i=1; i<jointModifier.length; i++)
+            {
+                new Modifier(ModGenerationTypeID, CorrectGroup, jointModifier[i], isImplicit);
+            }
+        }
         
         str = removeRolls(str);
         this.str = str;
@@ -243,5 +252,11 @@ public class Modifier implements Serializable {
         new Modifier("5", "Crafted", "Can have up to 3 Crafted Modifiers [crafted]", false);
         new Modifier("5", "Crafted", "Cannot roll Attack Modifiers [crafted]", false);
         new Modifier("5", "Crafted", "Cannot roll Caster Modifiers [crafted]", false);
+        
+        new Modifier("-3", "FlaskBase", "Recovers # Life over # Seconds", false);
+        new Modifier("-3", "FlaskBase", "Recovers # Mana over # Seconds", false);
+        new Modifier("-3", "FlaskBase", "Consumes # of # Charges on use", false);
+        new Modifier("-3", "FlaskBase", "Currently has # Charges", false);
+        new Modifier("-3", "FlaskBase", "Lasts # Seconds", false);
     }
 }

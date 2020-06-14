@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 
 public class ModifierLoader {
     
-    private final String FileNames = 
+    private final String FileNames = /* "ManaFlask"; */
         "Sacrifice_of_the_Vaal." +
         "Elder." +
         "Shaper." +
