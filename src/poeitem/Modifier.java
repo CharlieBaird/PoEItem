@@ -86,6 +86,11 @@ public class Modifier implements Serializable {
         return null;
     }
     
+    public Modifier dupe()
+    {
+        return new Modifier(String.valueOf(this.getModGenerationTypeID()), this.CorrectGroup, this.str, false);
+    }
+    
     public Modifier(String ModGenerationTypeID, String CorrectGroup, String str, boolean isImplicit)
     {
         try {

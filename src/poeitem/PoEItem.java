@@ -54,6 +54,8 @@ public class PoEItem {
             corrupted = true;
             raw = raw.replace("Corrupted\n", "");
         }
+        
+        System.out.println(raw);
                 
         Matcher getRarity = Pattern.compile("([ity: ]{5})([a-zA-Z]+)").matcher(raw);
         if (getRarity.find())
@@ -87,11 +89,12 @@ public class PoEItem {
             
             ArrayList<Double> rolls = new ArrayList<>();
             
-            Matcher getRoll = Pattern.compile("([*]+)([(\\d+(?:\\.\\d+)?)]+)").matcher(s);
+            Matcher getRoll = Pattern.compile("([@]+)([(\\d+(?:\\.\\d+)?)]+)").matcher(s);
             while (getRoll.find())
             {
                 rolls.add(Double.valueOf(getRoll.group(2)));
-                s = s.replace(getRoll.group(0), "");
+                System.out.println(s + getRoll.group(0));
+                s = s.replaceFirst(getRoll.group(0), "");
             }
             
             Modifier m = null;
@@ -99,10 +102,7 @@ public class PoEItem {
             {
                 s = s.replace(" (augmented)", "");
                 s = s.replace(" (crafted)", " [crafted]");
-//                System.out.println("--" + s + "--");
                 m = Modifier.getExplicitFromStr(s);
-//                if (m == null) System.out.println(s + " was null");
-//                else m.print();
             }
             else
             {
@@ -114,7 +114,7 @@ public class PoEItem {
                 try {
                     m.rolls[j] = rolls.get(j);
                 } catch (NullPointerException e) {
-//                    System.out.println("Modifier not found: '" + s + "'");
+                    System.out.println("Modifier not found: '" + s + "'");
                     return;
                 }
             }
@@ -127,6 +127,25 @@ public class PoEItem {
             }
             else
             {
+                if (m.getStr().equals("+#% to all Elemental Resistances"))
+                {
+                    Modifier fire = Modifier.getExplicitFromStr("+#% to Fire Resistance").dupe();
+                    Modifier cold = Modifier.getExplicitFromStr("+#% to Cold Resistance").dupe();
+                    Modifier ligh = Modifier.getExplicitFromStr("+#% to Lightning Resistance").dupe();
+                    fire.setCorrectGroup("Suggested");
+                    cold.setCorrectGroup("Suggested");
+                    ligh.setCorrectGroup("Suggested");
+                    fire.setModGenerationTypeID(10);
+                    cold.setModGenerationTypeID(10);
+                    ligh.setModGenerationTypeID(10);
+                    fire.rolls = new double[] {m.rolls[0]};
+                    cold.rolls = new double[] {m.rolls[0]};
+                    ligh.rolls = new double[] {m.rolls[0]};
+                    explicitModifiers.add(fire);
+                    explicitModifiers.add(cold);
+                    explicitModifiers.add(ligh);
+                }
+                
                 switch (m.getModGenerationTypeID())
                 {
                     case 1:
@@ -254,7 +273,7 @@ public class PoEItem {
         
         for (String s : keys)
         {
-            mod += "*" + s;
+            mod += "@" + s;
         }
         
         return mod;
