@@ -248,9 +248,9 @@ public class Modifier implements Serializable {
             "+#% to Chaos Resistance"
         });
         
-        new Modifier("0", "Total", "Energy Shield: #", Type.TOTAL);
-        new Modifier("0", "Total", "Evasion Rating: #", Type.TOTAL);
-        new Modifier("0", "Total", "Armour: #", Type.TOTAL);
+        new Modifier("-3", "Total", "Energy Shield: #", Type.TOTAL);
+        new Modifier("-3", "Total", "Evasion Rating: #", Type.TOTAL);
+        new Modifier("-3", "Total", "Armour: #", Type.TOTAL);
         
         new Modifier("-2", "Pseudo", "# Empty Suffix Modifiers", Type.PSEUDO);
         new Modifier("-2", "Pseudo", "# Empty Prefix Modifiers", Type.PSEUDO);
