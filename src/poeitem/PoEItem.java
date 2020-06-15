@@ -8,6 +8,7 @@ package poeitem;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import poeitem.Modifier.Type;
 
 /**
  *
@@ -25,6 +26,7 @@ public class PoEItem {
     public String sockets = "";
     
     public ArrayList<Modifier> baseModifiers = new ArrayList<>();
+    public ArrayList<Modifier> enchantModifiers = new ArrayList<>();
     public ArrayList<Modifier> implicitModifiers = new ArrayList<>();
     public ArrayList<Modifier> explicitModifiers = new ArrayList<>();
     
@@ -96,15 +98,19 @@ public class PoEItem {
             }
             
             Modifier m = null;
-            if (!s.contains("implicit"))
+            if (!s.contains(" (implicit)") && !s.contains(" (enchant)"))
             {
                 s = s.replace(" (augmented)", "");
                 s = s.replace(" (crafted)", " [crafted]");
                 m = Modifier.getExplicitFromStr(s);
             }
-            else
+            else if (s.contains(" (implicit)"))
             {
                  m = Modifier.getImplicitFromStr(s.replace(" (implicit)", ""));
+            }
+            else
+            {
+                m = Modifier.getEnchantFromStr(s.replace(" (enchant)", ""));
             }
             
             for (int j=0; j<rolls.size(); j++)
@@ -117,10 +123,8 @@ public class PoEItem {
                 }
             }
             
-            
             if (m == null)
             {
-//                System.out.println("'" + s + "'");
                 UnusedBuilder.append(s).append("&");
             }
             else
@@ -159,11 +163,12 @@ public class PoEItem {
                     case 3:
                         implicitModifiers.add(m);
                         break;
+                    case -4:
+                        enchantModifiers.add(m);
+                        break;
                     default:
-//                        m.print();
                         break;
                 }
-//                m.print();
             }
         }
         
@@ -260,13 +265,6 @@ public class PoEItem {
                         
             mod = mod.substring(0, index) + "#" + mod.substring(index+len, mod.length());
             
-            // Check for other weird things
-            
-//            index = mod.indexOf(" (augmented");
-//            if (index != -1)
-//            {
-//                mod = mod.substring(0, index);
-//            }
         }
         
         for (String s : keys)
@@ -318,6 +316,11 @@ public class PoEItem {
         if (!sockets.isEmpty()) System.out.println("Sockets: " + sockets);
         System.out.println("Base: ");
         for (Modifier m: baseModifiers) m.print();
+        if (!enchantModifiers.isEmpty())
+        {
+            System.out.println("Enchants: ");
+            for (Modifier m : enchantModifiers) m.print();
+        }
         if (!implicitModifiers.isEmpty())
         {
             System.out.println("Implicits: ");

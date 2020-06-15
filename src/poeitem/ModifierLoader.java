@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import poeitem.Modifier.Type;
 
 public class ModifierLoader {
     
@@ -112,7 +113,7 @@ public class ModifierLoader {
                         String ModGenerationTypeID = obj.get("ModGenerationTypeID").getAsString();
                         String str = obj.get("str").getAsString();
 
-                        m = new Modifier(ModGenerationTypeID, "Modifier", str, false);
+                        m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT);
                     }
                 }
                 else if (normalElement.isJsonObject())
@@ -128,7 +129,7 @@ public class ModifierLoader {
                         
                         if (str != null && str.equals("1 Added Passive Skill is a Jewel Socket")) continue;
 
-                        m = new Modifier(ModGenerationTypeID, "Modifier", str, false);
+                        m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT);
                     }
                 }
             }
@@ -151,7 +152,7 @@ public class ModifierLoader {
                 int ps = m.group(1).equals("P") ? 1 : 2;
                 String mod = "1 Added Passive Skill is " + m.group(3);
 
-                new Modifier(String.valueOf(ps), "ClusterJewelNotable", mod, false);
+                new Modifier(String.valueOf(ps), "ClusterJewelNotable", mod, Type.EXPLICIT);
             }
         }
         String data;
@@ -178,6 +179,9 @@ public class ModifierLoader {
         
         data = contentFromTextFile("/resources/mapsuffixes.txt");
         genMapSuffixes(data);
+        
+        data = contentFromTextFile("/resources/enchants.txt");
+        genEnchantments(data);
     }
             
     private static void genCrafted(String data)
@@ -216,7 +220,7 @@ public class ModifierLoader {
             for (String cr : craft)
             {
 //                System.out.println(cr);
-                Modifier modifier = new Modifier(affixType, "Crafted", cr + " [crafted]", false);
+                Modifier modifier = new Modifier(affixType, "Crafted", cr + " [crafted]", Type.CRAFT);
 //                modifier.print();
             }
         }
@@ -227,7 +231,7 @@ public class ModifierLoader {
         String[] lines = data.split("[*]");
         for (String s : lines)
         {
-            Modifier i = new Modifier("3", "Implicit", s, true);
+            Modifier i = new Modifier("3", "Implicit", s, Type.IMPLICIT);
 //            i.print();
         }
     }
@@ -240,7 +244,7 @@ public class ModifierLoader {
         while (m.find())
         {
             String base = m.group(2);
-            Modifier i = new Modifier("3", "Implicit", base, true);
+            Modifier i = new Modifier("3", "Implicit", base, Type.IMPLICIT);
         }
     }
     
@@ -248,19 +252,12 @@ public class ModifierLoader {
     {
         html = html.replaceAll("[\\[\\]]{2}", "");
         html = html.replaceAll("[a-zA-Z]+[|]{1}", "");
-        Matcher m = Pattern.compile("([value=\"]{7})([-,+%()0-9a-zA-Z. ]+)([<b\" ]{2})").matcher(html);
+        Matcher m = Pattern.compile("([value=\"]{7})([^\"]+)([\" class=\"tc]{11})").matcher(html);
         
         while (m.find())
         {
             String base = m.group(2);
-            Modifier i = new Modifier("1", "MapMod", base, false);
-        }
-        
-        m = Pattern.compile("([value=\\\"]{7})([-,+%()0-9a-zA-Z. ]+)[<br>]{4}([-,+%()0-9a-zA-Z. ]+)([\" \n]+)").matcher(html);
-        while (m.find())
-        {
-            String base = m.group(3);
-            Modifier i = new Modifier("1", "MapMod", base, false);
+            Modifier i = new Modifier("1", "MapMod", base, Type.EXPLICIT);
         }
     }
     
@@ -268,19 +265,25 @@ public class ModifierLoader {
     {
         html = html.replaceAll("[\\[\\]]{2}", "");
         html = html.replaceAll("[a-zA-Z]+[|]{1}", "");
-        Matcher m = Pattern.compile("([value=\"]{7})([-,+%()0-9a-zA-Z. ]+)([<b\" ]{2})").matcher(html);
+        Matcher m = Pattern.compile("([value=\"]{7})([^\"]+)([\" class=\"tc]{11})").matcher(html);
         
         while (m.find())
         {
             String base = m.group(2);
-            Modifier i = new Modifier("2", "MapMod", base, false);
+            Modifier i = new Modifier("2", "MapMod", base, Type.EXPLICIT);
         }
+    }
+    
+    private static void genEnchantments(String html)
+    {
+        html = html.replaceAll("[\\[\\]]{2}", "");
+        html = html.replaceAll("[a-zA-Z]+[|]{1}", "");
+        Matcher m = Pattern.compile("([value=\"]{7})([^\"]+)([\" class=\"tc]{11})").matcher(html);
         
-        m = Pattern.compile("([value=\\\"]{7})([-,+%()0-9a-zA-Z. ]+)[<br>]{4}([-,+%()0-9a-zA-Z. ]+)([\" \n]+)").matcher(html);
         while (m.find())
         {
-            String base = m.group(3);
-            Modifier i = new Modifier("2", "MapMod", base, false);
+            String base = m.group(2);
+            Modifier i = new Modifier("-4", "Enchantment", base, Type.ENCHANT);
         }
     }
     
@@ -295,7 +298,7 @@ public class ModifierLoader {
         while (m.find())
         {
             String base = m.group(2);
-            Modifier i = new Modifier("3", "Implicit", base, true);
+            Modifier i = new Modifier("3", "Implicit", base, Type.IMPLICIT);
         }
     }
     

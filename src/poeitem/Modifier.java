@@ -11,12 +11,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Modifier implements Serializable {
+    
+    public enum Type {
+        EXPLICIT, IMPLICIT, ENCHANT, CRAFT, BASE, PSEUDO, TOTAL
+    }
+    
     public static ArrayList<Modifier> AllExplicitModifiers = new ArrayList<Modifier>();
     public static ArrayList<Modifier> AllImplicitModifiers = new ArrayList<Modifier>();
+    public static ArrayList<Modifier> AllEnchantModifiers = new ArrayList<Modifier>();
     
     private int ModGenerationTypeID; // 1 = prefix, 2 = suffix
     private String CorrectGroup;
     private String str;
+    private Type type;
     
     public Modifier[] pseudoSupportedModifiers = null;
     
@@ -46,12 +53,20 @@ public class Modifier implements Serializable {
         this.str = str;
     }
     
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+    
     public void print()
     {
         int ModGenerationTypeIDDisplay = ModGenerationTypeID;
         if (ModGenerationTypeID == 4) ModGenerationTypeIDDisplay = 1;
         else if (ModGenerationTypeID == 5) ModGenerationTypeIDDisplay = 2;
-        System.out.printf("%-5s %-20s %-50s", ModGenerationTypeIDDisplay, CorrectGroup, str);
+        System.out.printf("%-12s %-5s %-20s %-50s", type, ModGenerationTypeIDDisplay, CorrectGroup, str);
         if (rolls != null)
             for (double d : rolls)
                 System.out.print(d + " ");
@@ -78,7 +93,19 @@ public class Modifier implements Serializable {
         {
             if (m.getStr().equals(str))
             {
-//                System.out.println(true);
+                return m;
+            }
+        }
+        
+        return null;
+    }
+    
+    public static Modifier getEnchantFromStr(String str)
+    {
+        for (Modifier m : AllEnchantModifiers)
+        {
+            if (m.getStr().equals(str))
+            {
                 return m;
             }
         }
@@ -88,10 +115,10 @@ public class Modifier implements Serializable {
     
     public Modifier dupe()
     {
-        return new Modifier(String.valueOf(this.getModGenerationTypeID()), this.CorrectGroup, this.str, false);
+        return new Modifier(String.valueOf(this.getModGenerationTypeID()), this.CorrectGroup, this.str, this.type);
     }
     
-    public Modifier(String ModGenerationTypeID, String CorrectGroup, String str, boolean isImplicit)
+    public Modifier(String ModGenerationTypeID, String CorrectGroup, String str, Type type)
     {
         try {
             this.ModGenerationTypeID = Integer.valueOf(ModGenerationTypeID);
@@ -100,6 +127,7 @@ public class Modifier implements Serializable {
             return;
         }
         this.CorrectGroup = CorrectGroup;
+        this.type = type;
         
         str = str.replaceAll("<span class='mod-value'>", "");
         str = str.replaceAll("</span>", "");
@@ -113,57 +141,52 @@ public class Modifier implements Serializable {
             str = jointModifier[0];
             for (int i=1; i<jointModifier.length; i++)
             {
-                new Modifier(ModGenerationTypeID, CorrectGroup, jointModifier[i], isImplicit);
+                Modifier other = new Modifier(ModGenerationTypeID, CorrectGroup, jointModifier[i], type);
+//                other.print();
             }
         }
         
         str = removeRolls(str);
         this.str = str;
         
-        if (!isImplicit)
-        {
-//            if (CorrectGroup.equals("Crafted")) System.out.println(str);
-            for (Modifier explModifier : AllExplicitModifiers)
-            {
-                if (explModifier.str.equals(this.str))
-                {
-                    if (this.CorrectGroup.equals("Crafted"))
-                    {
-                        if (explModifier.CorrectGroup.equals("Crafted"))
-                        {
-//                            System.out.println(str);
-                            return;
-                        }
-                    }
-                    else
-                    {
-//                        System.out.println(str);
-                        return;
-                    }
-                }
-            }
-        }
-        else
-            for (Modifier implModifier : AllImplicitModifiers)
-                if (implModifier.str.equals(this.str))
-                    return;
-        
         int count = str.length() - str.replaceAll("#", "").length();
         rolls = new double[count];
         
-        if (!isImplicit)
+        switch (type)
         {
-            AllExplicitModifiers.add(this);
-        }
-        else
-        {
-            AllImplicitModifiers.add(this);
+            case IMPLICIT:
+                for (Modifier implModifier : AllImplicitModifiers)
+                    if (implModifier.str.equals(this.str))
+                        return;
+                AllImplicitModifiers.add(this);
+                break;
+            case EXPLICIT:
+            case BASE:
+            case TOTAL:
+            case PSEUDO:
+                for (Modifier explModifier : AllExplicitModifiers)
+                    if (explModifier.str.equals(this.str))
+                        return;
+                AllExplicitModifiers.add(this);
+                break;
+            case CRAFT:
+                for (Modifier explModifier : AllExplicitModifiers)
+                    if (explModifier.str.equals(this.str) && explModifier.getCorrectGroup().equals("Crafted"))
+                        return;
+                AllExplicitModifiers.add(this);
+                break;
+            case ENCHANT:
+                for (Modifier enchModifier : AllEnchantModifiers)
+                    if (enchModifier.str.equals(this.str))
+                        return;
+                AllEnchantModifiers.add(this);
+                break;
         }
     }
     
     public Modifier(String ModGenerationTypeID, String CorrectGroup, String str, String[] pseudoSupportedModifiersStrs)
     {
-        this(ModGenerationTypeID, CorrectGroup, str, false);
+        this(ModGenerationTypeID, CorrectGroup, str, Type.PSEUDO);
         
         pseudoSupportedModifiers = new Modifier[pseudoSupportedModifiersStrs.length];
         for (int i=0; i<pseudoSupportedModifiersStrs.length; i++)
@@ -225,38 +248,44 @@ public class Modifier implements Serializable {
             "+#% to Chaos Resistance"
         });
         
-        new Modifier("0", "Total", "Energy Shield: #", false);
-        new Modifier("0", "Total", "Evasion Rating: #", false);
-        new Modifier("0", "Total", "Armour: #", false);
+        new Modifier("0", "Total", "Energy Shield: #", Type.TOTAL);
+        new Modifier("0", "Total", "Evasion Rating: #", Type.TOTAL);
+        new Modifier("0", "Total", "Armour: #", Type.TOTAL);
         
-        new Modifier("-2", "Pseudo", "# Empty Suffix Modifiers", false);
-        new Modifier("-2", "Pseudo", "# Empty Prefix Modifiers", false);
+        new Modifier("-2", "Pseudo", "# Empty Suffix Modifiers", Type.PSEUDO);
+        new Modifier("-2", "Pseudo", "# Empty Prefix Modifiers", Type.PSEUDO);
         
-        new Modifier("-3", "Base", "Quality: +#%", false);
-        new Modifier("-3", "Base", "Critical Strike Chance: #%", false);
-        new Modifier("-3", "Base", "Attacks per Second: #", false);
-        new Modifier("-3", "Base", "Weapon Range: #", false);
-        new Modifier("-3", "Base", "Level: #", false);
-        new Modifier("-3", "Base", "Dex: #", false);
-        new Modifier("-3", "Base", "Str: #", false);
-        new Modifier("-3", "Base", "Int: #", false);
-        new Modifier("-3", "Base", "Map Tier: #", false);
-        new Modifier("-3", "Base", "Item Level: #", false);
-        new Modifier("-3", "Base", "Item Quantity: +#%", false);
-        new Modifier("-3", "Base", "Item Rarity: +#%", false);
-        new Modifier("-3", "Base", "Monster Pack Size: +#%", false);
-        new Modifier("-3", "Base", "Item Level: #", false);
+        new Modifier("-3", "Base", "Quality: +#%", Type.BASE);
+        new Modifier("-3", "Base", "Critical Strike Chance: #%", Type.BASE);
+        new Modifier("-3", "Base", "Attacks per Second: #", Type.BASE);
+        new Modifier("-3", "Base", "Weapon Range: #", Type.BASE);
+        new Modifier("-3", "Base", "Level: #", Type.BASE);
+        new Modifier("-3", "Base", "Dex: #", Type.BASE);
+        new Modifier("-3", "Base", "Str: #", Type.BASE);
+        new Modifier("-3", "Base", "Int: #", Type.BASE);
+        new Modifier("-3", "Base", "Map Tier: #", Type.BASE);
+        new Modifier("-3", "Base", "Item Level: #", Type.BASE);
+        new Modifier("-3", "Base", "Item Quantity: +#%", Type.BASE);
+        new Modifier("-3", "Base", "Item Rarity: +#%", Type.BASE);
+        new Modifier("-3", "Base", "Monster Pack Size: +#%", Type.BASE);
+        new Modifier("-3", "Base", "Item Level: #", Type.BASE);
+        new Modifier("-3", "Base", "Chance to Block: #%", Type.BASE);
         
-        new Modifier("5", "Crafted", "Prefixes Cannot Be Changed [crafted]", false);
-        new Modifier("4", "Crafted", "Suffixes Cannot Be Changed [crafted]", false);
-        new Modifier("5", "Crafted", "Can have up to 3 Crafted Modifiers [crafted]", false);
-        new Modifier("5", "Crafted", "Cannot roll Attack Modifiers [crafted]", false);
-        new Modifier("5", "Crafted", "Cannot roll Caster Modifiers [crafted]", false);
+        new Modifier("5", "Crafted", "Prefixes Cannot Be Changed [crafted]", Type.CRAFT);
+        new Modifier("4", "Crafted", "Suffixes Cannot Be Changed [crafted]", Type.CRAFT);
+        new Modifier("5", "Crafted", "Can have up to 3 Crafted Modifiers [crafted]", Type.CRAFT);
+        new Modifier("5", "Crafted", "Cannot roll Attack Modifiers [crafted]", Type.CRAFT);
+        new Modifier("5", "Crafted", "Cannot roll Caster Modifiers [crafted]", Type.CRAFT);
         
-        new Modifier("-3", "FlaskBase", "Recovers # Life over # Seconds", false);
-        new Modifier("-3", "FlaskBase", "Recovers # Mana over # Seconds", false);
-        new Modifier("-3", "FlaskBase", "Consumes # of # Charges on use", false);
-        new Modifier("-3", "FlaskBase", "Currently has # Charges", false);
-        new Modifier("-3", "FlaskBase", "Lasts # Seconds", false);
+        new Modifier("-3", "FlaskBase", "Recovers # Life over # Seconds", Type.BASE);
+        new Modifier("-3", "FlaskBase", "Recovers # Mana over # Seconds", Type.BASE);
+        new Modifier("-3", "FlaskBase", "Consumes # of # Charges on use", Type.BASE);
+        new Modifier("-3", "FlaskBase", "Currently has # Charges", Type.BASE);
+        new Modifier("-3", "FlaskBase", "Lasts # Seconds", Type.BASE);
+        
+        new Modifier("2", "Aspect", "Grants Level # Aspect of the Avian Skill", Type.EXPLICIT);
+        new Modifier("2", "Aspect", "Grants Level # Aspect of the Crab Skill", Type.EXPLICIT);
+        new Modifier("2", "Aspect", "Grants Level # Aspect of the Spider Skill", Type.EXPLICIT);
+        new Modifier("2", "Aspect", "Grants Level # Aspect of the Cat Skill", Type.EXPLICIT);
     }
 }
