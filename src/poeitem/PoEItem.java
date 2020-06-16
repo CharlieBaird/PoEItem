@@ -8,7 +8,6 @@ package poeitem;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import poeitem.Modifier.Type;
 
 /**
  *
@@ -85,6 +84,7 @@ public class PoEItem {
         
         for (int i=0; i<lines.length; i++)
         {
+            boolean skipOver = false;
             String s = lines[i];
             
             ArrayList<Double> rolls = new ArrayList<>();
@@ -119,8 +119,13 @@ public class PoEItem {
                     m.rolls[j] = rolls.get(j);
                 } catch (NullPointerException e) {
                     System.out.println("Modifier not found: '" + s + "'");
-                    return;
+                    skipOver = true;
                 }
+            }
+            
+            if (skipOver)
+            {
+                continue;
             }
             
             if (m == null)
