@@ -111,11 +111,15 @@ public class ModifierLoader {
     
     private void loadModifiersFromJson()
     {
+        String[] lines = FileNames.split("[.]");
         String[] json = getJson();
         JsonParser parser = new JsonParser();
 
-        for (String string : json)
+        for (int i=0; i<json.length; i++)
         {
+            String string = json[i];
+            String baseName = lines[i];
+            
             JsonObject object = parser.parse(string).getAsJsonObject();
             
             String[] influences = new String[] {"normal", "elder", "shaper", "crusader", "redeemer", "hunter", "warlord"};
@@ -135,8 +139,19 @@ public class ModifierLoader {
 
                         String ModGenerationTypeID = obj.get("ModGenerationTypeID").getAsString();
                         String str = obj.get("str").getAsString();
-
-                        m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT);
+                        int itemLevel = Integer.valueOf(obj.get("Level").getAsString());
+                        
+                        String tierName = null;
+                        try {
+                             tierName = obj.get("Name").getAsString();
+                        } catch (UnsupportedOperationException ex) {
+                            // No name associated
+                        }
+                        
+                        if (tierName != null)
+                            m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT, tierName, baseName, itemLevel);
+                        else
+                            m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT);
                     }
                 }
                 else if (normalElement.isJsonObject())
@@ -149,14 +164,27 @@ public class ModifierLoader {
 
                         String ModGenerationTypeID = obj.get("ModGenerationTypeID").getAsString();
                         String str = obj.get("str").getAsString();
+                        int itemLevel = Integer.valueOf(obj.get("Level").getAsString());
                         
                         if (str != null && str.equals("1 Added Passive Skill is a Jewel Socket")) continue;
 
-                        m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT);
+                        String tierName = null;
+                        try {
+                             tierName = obj.get("Name").getAsString();
+                        } catch (UnsupportedOperationException ex) {
+                            // No name associated
+                        }
+                        
+                        if (tierName != null)
+                            m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT, tierName, baseName, itemLevel);
+                        else
+                            m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT);
                     }
                 }
             }
         }
+        
+        Modifier.sortTiersOnExplicits();
         
         Modifier.genPseudo();
         

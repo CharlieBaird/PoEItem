@@ -7,6 +7,7 @@ package poeitem;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,9 +17,11 @@ public class Modifier implements Serializable {
         EXPLICIT, IMPLICIT, ENCHANT, CRAFT, BASE, PSEUDO, TOTAL
     }
     
-    public static ArrayList<Modifier> AllExplicitModifiers = new ArrayList<Modifier>();
-    public static ArrayList<Modifier> AllImplicitModifiers = new ArrayList<Modifier>();
-    public static ArrayList<Modifier> AllEnchantModifiers = new ArrayList<Modifier>();
+    public static ArrayList<Modifier> AllExplicitModifiers = new ArrayList<>();
+    public static ArrayList<Modifier> AllImplicitModifiers = new ArrayList<>();
+    public static ArrayList<Modifier> AllEnchantModifiers = new ArrayList<>();
+    
+    public ArrayList<ArrayList<ModifierTier>> tiers = new ArrayList<>();
     
     private int ModGenerationTypeID; // 1 = prefix, 2 = suffix
     private String CorrectGroup;
@@ -71,6 +74,11 @@ public class Modifier implements Serializable {
             for (double d : rolls)
                 System.out.print(d + " ");
         System.out.println();
+        if (tiers.size() >= 1)
+            for (ArrayList<ModifierTier> al : tiers)
+                if (al.size() >= 1)
+                    for (ModifierTier t : al)
+                        t.print();
         
     }
     
@@ -118,6 +126,57 @@ public class Modifier implements Serializable {
         return new Modifier(String.valueOf(this.getModGenerationTypeID()), this.CorrectGroup, this.str, this.type);
     }
     
+    
+    public Modifier(String ModGenerationTypeID, String CorrectGroup, String str, Type type, String tierName, String base, int itemLevel)
+    {
+        this(ModGenerationTypeID, CorrectGroup, str, type);
+        
+        str = str.replaceAll("<span class='mod-value'>", "");
+        str = str.replaceAll("</span>", "");
+        str = str.replaceAll("&ndash;", "-");
+        str = str.replaceAll("[\\(\\)]", "");
+        str = str.replaceAll("<br/>", "<br>");
+        
+        String[] multiple = str.split("<br>");
+        
+        for (String s : multiple)
+        {
+            Modifier trump = getExplicitFromStr(removeRolls(s, true));
+            if (trump == null) 
+            {
+//                System.out.println("Errored from '" + s + "'");
+                return;
+            }
+//            trump.print();
+            
+            ModifierTier t = new ModifierTier(tierName, s, base, itemLevel);
+            
+            if (trump.tiers.size() >= 1)
+            {
+                boolean found = false;
+                for (ArrayList<ModifierTier> al : trump.tiers)
+                {
+                    if (al.get(0).getBaseName().equals(base) && !al.contains(t)) {
+                        al.add(t);
+                        found = true;
+                        break;
+                    }
+                }
+                
+                if (!found)
+                {
+                    trump.tiers.add(new ArrayList<>());
+                    trump.tiers.get(trump.tiers.size()-1).add(t);
+                }
+            }
+            else
+            {
+                trump.tiers.add(new ArrayList<>());
+                trump.tiers.get(0).add(t);
+            }
+        }
+    }
+    
     public Modifier(String ModGenerationTypeID, String CorrectGroup, String str, Type type)
     {
         try {
@@ -146,7 +205,7 @@ public class Modifier implements Serializable {
             }
         }
         
-        str = removeRolls(str);
+        str = removeRolls(str, true);
         this.str = str;
         
         int count = str.length() - str.replaceAll("#", "").length();
@@ -195,7 +254,7 @@ public class Modifier implements Serializable {
         }
     }
         
-    public static String removeRolls(String str)
+    public static String removeRolls(String str, boolean removeDouble)
     {
         Pattern p = Pattern.compile("(\\d+(?:\\.\\d+)?)");
         Matcher m = p.matcher(str);
@@ -204,7 +263,6 @@ public class Modifier implements Serializable {
         
         while(m.find())
         {
-//            System.out.print(m.group(1) + ",");
             toRep.add(m.group(1));
         }
         
@@ -213,10 +271,25 @@ public class Modifier implements Serializable {
             str = str.replaceFirst(s, "#");
         }
         
-//        System.out.print("\n");
-        str = str.replaceAll("#-#", "#");
+        if (removeDouble)
+            str = str.replaceAll("#-#", "#");
         
         return str;
+    }
+    
+    public static ArrayList<Double> getRolls(String str)
+    {
+        Pattern p = Pattern.compile("(\\d+(?:\\.\\d+)?)");
+        Matcher m = p.matcher(str);
+        
+        ArrayList<Double> al = new ArrayList<>();
+        
+        while(m.find())
+        {
+            al.add(Double.valueOf(m.group(1)));
+        }
+        
+        return al;
     }
         
     @Override
@@ -287,5 +360,16 @@ public class Modifier implements Serializable {
         new Modifier("2", "Aspect", "Grants Level # Aspect of the Crab Skill", Type.EXPLICIT);
         new Modifier("2", "Aspect", "Grants Level # Aspect of the Spider Skill", Type.EXPLICIT);
         new Modifier("2", "Aspect", "Grants Level # Aspect of the Cat Skill", Type.EXPLICIT);
+    }
+    
+    public static void sortTiersOnExplicits()
+    {
+//        for (Modifier m : AllExplicitModifiers)
+//        {
+//            if (m.tiers.size() > 1)
+//            {
+//                Collections.sort(m.tiers);
+//            }
+//        }
     }
 }
