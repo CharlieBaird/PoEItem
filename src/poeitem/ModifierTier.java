@@ -5,24 +5,20 @@
  */
 package poeitem;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import static poeitem.Modifier.getRolls;
 import static poeitem.Modifier.removeRolls;
 
-public class ModifierTier implements Comparable<ModifierTier> {
+public class ModifierTier implements Comparable<ModifierTier>, Serializable {
     
     private String name;
     private double value;
     private boolean hasRolls = true;
-    private String baseName;
     private int itemLevel;
-
-    public String getBaseName() {
-        return baseName;
-    }
-
+    
     public int getItemLevel() {
         return itemLevel;
     }
@@ -52,9 +48,8 @@ public class ModifierTier implements Comparable<ModifierTier> {
         Pattern.compile("([#-]{3})([^#]+)([#]{1})") // #-# to #
     };
     
-    public ModifierTier(String name, String raw, String baseName, int itemLevel) {
+    public ModifierTier(String name, String raw, int itemLevel) {
         this.name = name;
-        this.baseName = baseName;
         this.itemLevel = itemLevel;
         
         ArrayList<Double> tierRolls = getRolls(raw);
@@ -111,7 +106,7 @@ public class ModifierTier implements Comparable<ModifierTier> {
     
     public void print()
     {
-        System.out.printf("%-10s %-4s %-15s %-10s\n", baseName, itemLevel, name, value);
+        System.out.printf("%-4s %-15s %-10s\n", itemLevel, name, value);
     }
 
     @Override
