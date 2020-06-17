@@ -92,6 +92,7 @@ public class BaseItem {
     }
 
     public static void genBaseItems() {
+        AllBaseItems.clear();
         for (Base base : Base.values())
         {
             AllBaseItems.add(new BaseItem(base));

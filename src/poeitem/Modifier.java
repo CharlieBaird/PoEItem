@@ -166,6 +166,39 @@ public class Modifier implements Serializable {
         }
     }
     
+    public ModifierTier[] getTiersWithLevel(int maxLevel)
+    {
+        ArrayList<ModifierTier> tiersAL = new ArrayList<>();
+        for (ModifierTier tier : tiers)
+        {
+            if (tier.getItemLevel() <= maxLevel)
+            {
+                tiersAL.add(tier);
+            }
+        }
+        
+        ModifierTier[] tiersArr = new ModifierTier[tiersAL.size()];
+        for (int i=0; i<tiersAL.size(); i++)
+        {
+            tiersArr[i] = tiersAL.get(i);
+        }
+        
+        return tiersArr;
+    }
+    
+    public int getHighestHittableTier(int maxLevel)
+    {
+        for (int i=0; i<tiers.size(); i++)
+        {
+            if (tiers.get(i).getItemLevel() > maxLevel)
+            {
+                return tiers.size() - i + 1;
+            }
+        }
+        
+        return 1;
+    }
+    
     public Modifier(String ModGenerationTypeID, String CorrectGroup, String str, Type type, String tierName, String base, int itemLevel)
     {
         this(ModGenerationTypeID, CorrectGroup, str, type, true);
