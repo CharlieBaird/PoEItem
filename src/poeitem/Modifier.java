@@ -429,8 +429,11 @@ public class Modifier implements Serializable {
         other = new Modifier("-3", "Base", "Map Tier: #", Type.BASE, true, false);
         other = new Modifier("-3", "Base", "Item Level: #", Type.BASE, true, false);
         other = new Modifier("-3", "Base", "Item Quantity: +#%", Type.BASE, true);
+        other.addToBase(Base.MAP);
         other = new Modifier("-3", "Base", "Item Rarity: +#%", Type.BASE, true);
+        other.addToBase(Base.MAP);
         other = new Modifier("-3", "Base", "Monster Pack Size: +#%", Type.BASE, true);
+        other.addToBase(Base.MAP);
         other = new Modifier("-3", "Base", "Item Level: #", Type.BASE, true, false);
         other = new Modifier("-3", "Base", "Chance to Block: #%", Type.BASE, true, false);
         
