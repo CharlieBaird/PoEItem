@@ -11,95 +11,22 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import poeitem.Modifier.Type;
 
 public class ModifierLoader {
     
-    private final String FileNames = /* "ManaFlask"; */
-        "Claw." +
-        "Dagger." +
-        "Wand." +
-        "One+Hand+Sword." +
-        "Thrusting+One+Hand+Sword." +
-        "One+Hand+Axe." +
-        "One+Hand+Mace." +
-        "Sceptre." +
-        "Rune+Dagger." +
-        "Bow." +
-        "Staff." +
-        "Two+Hand+Sword." +
-        "Two+Hand+Axe." +
-        "Two+Hand+Mace." +
-        "FishingRod." +
-        "Warstaff." +
-        "BaseItemTypes&an=Crimson+Jewel." +
-        "BaseItemTypes&an=Viridian+Jewel." +
-        "BaseItemTypes&an=Viridian+Jewel." +
-        "BaseItemTypes&an=Prismatic+Jewel." +
-        "BaseItemTypes&an=Murderous+Eye+Jewel." +
-        "BaseItemTypes&an=Searching+Eye+Jewel." +
-        "BaseItemTypes&an=Hypnotic+Eye+Jewel." +
-        "BaseItemTypes&an=Ghastly+Eye+Jewel." +
-        "BaseItemTypes&an=Timeless+Jewel." +
-        "BaseItemTypes&an=Large+Cluster+Jewel." +
-        "BaseItemTypes&an=Medium+Cluster+Jewel." +
-        "BaseItemTypes&an=Small+Cluster+Jewel." +
-        "Amulet." +
-        "Ring." +
-        "Ring&an=unset_ring." +
-        "Belt." +
-        "Gloves." +
-        "Gloves&an=an=str_armour." +
-        "Gloves&an=dex_armour." +
-        "Gloves&an=int_armour." +
-        "Gloves&an=str_dex_armour." +
-        "Gloves&an=str_int_armour." +
-        "Gloves&an=dex_int_armour." +
-        "Boots." +
-        "Boots&an=an=str_armour." +
-        "Boots&an=dex_armour." +
-        "Boots&an=int_armour." +
-        "Boots&an=str_dex_armour." +
-        "Boots&an=str_int_armour." +
-        "Boots&an=dex_int_armour." +
-        "Body+Armour." +
-        "Body+Armour&an=an=str_armour." +
-        "Body+Armour&an=dex_armour." +
-        "Body+Armour&an=int_armour." +
-        "Body+Armour&an=str_dex_armour." +
-        "Body+Armour&an=str_int_armour." +
-        "Body+Armour&an=dex_int_armour." +
-        "Helmet." +
-        "Helmet&an=an=str_armour." +
-        "Helmet&an=dex_armour." +
-        "Helmet&an=int_armour." +
-        "Helmet&an=str_dex_armour." +
-        "Helmet&an=str_int_armour." +
-        "Helmet&an=dex_int_armour." +
-        "Quiver." +
-        "Shield." +
-        "Shield&an=an=str_armour,str_shield." +
-        "Shield&an=dex_armour,dex_shield." +
-        "Shield&an=int_armour,focus." +
-        "Shield&an=str_dex_armour,str_dex_shield." +
-        "Shield&an=str_int_armour,str_int_shield." +
-        "Shield&an=dex_int_armour,dex_int_shield." +
-        "LifeFlask." +
-        "ManaFlask." +
-        "HybridFlask." +
-        "UtilityFlask." +
-        "UtilityFlaskCritical";
-    
     public static void loadModifiers()
     {
+        BaseItem.genBaseItems();
         new ModifierLoader().loadModifiersFromJson();
     }
     
     private String[] getJson()
     {
-        String[] lines = FileNames.split("[.]");
+        String[] lines = Arrays.copyOf(BaseItem.BaseItemKey.keySet().toArray(), BaseItem.BaseItemKey.keySet().toArray().length, String[].class);
         String[] contents = new String[lines.length];
         for (int i=0; i<lines.length; i++)
         {
@@ -111,11 +38,15 @@ public class ModifierLoader {
     
     private void loadModifiersFromJson()
     {
+        String[] lines = Arrays.copyOf(BaseItem.BaseItemKey.keySet().toArray(), BaseItem.BaseItemKey.keySet().toArray().length, String[].class);
         String[] json = getJson();
         JsonParser parser = new JsonParser();
 
-        for (String string : json)
+        for (int i=0; i<json.length; i++)
         {
+            String string = json[i];
+            String baseName = lines[i];
+            
             JsonObject object = parser.parse(string).getAsJsonObject();
             
             String[] influences = new String[] {"normal", "elder", "shaper", "crusader", "redeemer", "hunter", "warlord"};
@@ -135,8 +66,19 @@ public class ModifierLoader {
 
                         String ModGenerationTypeID = obj.get("ModGenerationTypeID").getAsString();
                         String str = obj.get("str").getAsString();
-
-                        m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT);
+                        int itemLevel = Integer.valueOf(obj.get("Level").getAsString());
+                        
+                        String tierName = null;
+                        try {
+                             tierName = obj.get("Name").getAsString();
+                        } catch (UnsupportedOperationException ex) {
+                            // No name associated
+                        }
+                        
+                        if (tierName != null)
+                            m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT, tierName, baseName, itemLevel);
+                        else
+                            m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT, true);
                     }
                 }
                 else if (normalElement.isJsonObject())
@@ -149,10 +91,21 @@ public class ModifierLoader {
 
                         String ModGenerationTypeID = obj.get("ModGenerationTypeID").getAsString();
                         String str = obj.get("str").getAsString();
+                        int itemLevel = Integer.valueOf(obj.get("Level").getAsString());
                         
                         if (str != null && str.equals("1 Added Passive Skill is a Jewel Socket")) continue;
 
-                        m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT);
+                        String tierName = null;
+                        try {
+                             tierName = obj.get("Name").getAsString();
+                        } catch (UnsupportedOperationException ex) {
+                            // No name associated
+                        }
+                        
+                        if (tierName != null)
+                            m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT, tierName, baseName, itemLevel);
+                        else
+                            m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT, true);
                     }
                 }
             }
@@ -175,7 +128,8 @@ public class ModifierLoader {
                 int ps = m.group(1).equals("P") ? 1 : 2;
                 String mod = "1 Added Passive Skill is " + m.group(3);
 
-                new Modifier(String.valueOf(ps), "ClusterJewelNotable", mod, Type.EXPLICIT);
+                Modifier cm = new Modifier(String.valueOf(ps), "ClusterJewelNotable", mod, Type.EXPLICIT, true);
+                cm.addToBase(Base.SMALL_CLUSTER_JEWEL, Base.MEDIUM_CLUSTER_JEWEL, Base.LARGE_CLUSTER_JEWEL);
             }
         }
         String data;
@@ -243,7 +197,7 @@ public class ModifierLoader {
             for (String cr : craft)
             {
 //                System.out.println(cr);
-                Modifier modifier = new Modifier(affixType, "Crafted", cr + " [crafted]", Type.CRAFT);
+                Modifier modifier = new Modifier(affixType, "Crafted", cr + " [crafted]", Type.CRAFT, true);
 //                modifier.print();
             }
         }
@@ -254,7 +208,7 @@ public class ModifierLoader {
         String[] lines = data.split("[*]");
         for (String s : lines)
         {
-            Modifier i = new Modifier("3", "Implicit", s, Type.IMPLICIT);
+            Modifier i = new Modifier("3", "Implicit", s, Type.IMPLICIT, true);
 //            i.print();
         }
     }
@@ -267,7 +221,7 @@ public class ModifierLoader {
         while (m.find())
         {
             String base = m.group(2);
-            Modifier i = new Modifier("3", "Implicit", base, Type.IMPLICIT);
+            Modifier i = new Modifier("3", "Implicit", base, Type.IMPLICIT, true);
         }
     }
     
@@ -280,7 +234,8 @@ public class ModifierLoader {
         while (m.find())
         {
             String base = m.group(2);
-            Modifier i = new Modifier("1", "MapMod", base, Type.EXPLICIT);
+            Modifier i = new Modifier("1", "MapMod", base, Type.EXPLICIT, true);
+            i.addToBase(Base.MAP);
         }
     }
     
@@ -293,7 +248,8 @@ public class ModifierLoader {
         while (m.find())
         {
             String base = m.group(2);
-            Modifier i = new Modifier("2", "MapMod", base, Type.EXPLICIT);
+            Modifier i = new Modifier("2", "MapMod", base, Type.EXPLICIT, true);
+            i.addToBase(Base.MAP);
         }
     }
     
@@ -306,7 +262,7 @@ public class ModifierLoader {
         while (m.find())
         {
             String base = m.group(2);
-            Modifier i = new Modifier("-4", "Enchantment", base, Type.ENCHANT);
+            Modifier i = new Modifier("-4", "Enchantment", base, Type.ENCHANT, true);
         }
     }
     
@@ -321,7 +277,7 @@ public class ModifierLoader {
         while (m.find())
         {
             String base = m.group(2);
-            Modifier i = new Modifier("3", "Implicit", base, Type.IMPLICIT);
+            Modifier i = new Modifier("3", "Implicit", base, Type.IMPLICIT, true);
         }
     }
     
