@@ -220,14 +220,13 @@ public class Modifier implements Serializable {
             
             Modifier existing = b.getExplicitFromStr(removeRolls(s, true));
             
+            if (existing == null) 
+            {
+                b.assocModifiers.add(other);
+                existing = other;
+            }
             if (multiple.length == 1)
             {
-                if (existing == null) 
-                {
-                    b.assocModifiers.add(other);
-                    existing = other;
-                }
-
                 ModifierTier t = new ModifierTier(tierName, s, itemLevel);
                 if (!existing.tiers.contains(t)) {
                     existing.tiers.add(t);

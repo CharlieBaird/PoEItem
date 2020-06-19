@@ -101,7 +101,7 @@ public class ModifierTier implements Comparable<ModifierTier>, Serializable {
     public boolean equals(Object other)
     {
         ModifierTier mt = (ModifierTier) other;
-        return this.name.equals(mt.name) && this.value == mt.value;
+        return /*this.name.equals(mt.name) &&*/ this.value == mt.value;
     }
     
     public void print()
