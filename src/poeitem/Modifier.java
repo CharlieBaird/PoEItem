@@ -7,6 +7,7 @@ package poeitem;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -230,6 +231,7 @@ public class Modifier implements Serializable {
                 ModifierTier t = new ModifierTier(tierName, s, itemLevel);
                 if (!existing.tiers.contains(t)) {
                     existing.tiers.add(t);
+                    Collections.sort(existing.tiers);
                 }
             }
         }
