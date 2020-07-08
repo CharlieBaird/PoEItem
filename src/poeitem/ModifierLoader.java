@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package poeitem;
 
 import com.google.gson.*;
@@ -12,6 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import poeitem.Modifier.Type;
@@ -21,6 +17,15 @@ public class ModifierLoader {
     public static void loadModifiers()
     {
         BaseItem.genBaseItems();
+        new ModifierLoader().loadModifiersFromJson();
+    }
+
+    public static void reloadModifiers() {
+        BaseItem.AllBaseItems.clear();
+        BaseItem.genBaseItems();
+        Modifier.AllEnchantModifiers.clear();
+        Modifier.AllExplicitModifiers.clear();
+        Modifier.AllImplicitModifiers.clear();
         new ModifierLoader().loadModifiersFromJson();
     }
     
@@ -111,7 +116,23 @@ public class ModifierLoader {
             }
         }
         
+        for (int i=0; i<BaseItem.AllBaseItems.size(); i++)
+        {
+            Collections.sort(BaseItem.AllBaseItems.get(i).assocModifiers);
+        }
+        Collections.sort(Modifier.AllExplicitModifiers);
+        Collections.sort(Modifier.AllEnchantModifiers);
+        Collections.sort(Modifier.AllImplicitModifiers);
+        
         Modifier.genPseudo();
+        
+        for (int i=0; i<BaseItem.AllBaseItems.size(); i++)
+        {
+            Collections.sort(BaseItem.AllBaseItems.get(i).assocModifiers);
+        }
+        Collections.sort(Modifier.AllExplicitModifiers);
+        Collections.sort(Modifier.AllEnchantModifiers);
+        Collections.sort(Modifier.AllImplicitModifiers);
         
         String content = contentFromTextFile("/resources/clusternotables.txt");
 
@@ -120,7 +141,7 @@ public class ModifierLoader {
 
         for (String s : specNotable)
         {                
-            Pattern p = Pattern.compile("([PS]{1})([_]+)([a-zA-Z ]*)");
+            Pattern p = Pattern.compile("([PS]{1})([_]+)([a-zA-Z -]*)");
             Matcher m = p.matcher(s);
 
             if (m.find())
@@ -159,6 +180,14 @@ public class ModifierLoader {
         
         data = contentFromTextFile("/resources/enchants.txt");
         genEnchantments(data);
+        
+        for (int i=0; i<BaseItem.AllBaseItems.size(); i++)
+        {
+            Collections.sort(BaseItem.AllBaseItems.get(i).assocModifiers);
+        }
+        Collections.sort(Modifier.AllExplicitModifiers);
+        Collections.sort(Modifier.AllEnchantModifiers);
+        Collections.sort(Modifier.AllImplicitModifiers);
     }
             
     private static void genCrafted(String data)

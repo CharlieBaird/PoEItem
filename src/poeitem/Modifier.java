@@ -8,18 +8,24 @@ package poeitem;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Modifier implements Serializable {
+public class Modifier implements Serializable, Comparable {
+
+    @Override
+    public int compareTo(Object o) {
+        return getStr().compareTo(((Modifier) o).getStr());
+    }
     
     public enum Type {
         EXPLICIT, IMPLICIT, ENCHANT, CRAFT, BASE, PSEUDO, TOTAL
     }
         
-    public static ArrayList<Modifier> AllExplicitModifiers = new ArrayList<>();
-    public static ArrayList<Modifier> AllImplicitModifiers = new ArrayList<>();
-    public static ArrayList<Modifier> AllEnchantModifiers = new ArrayList<>();
+    public static ArrayList<Modifier> AllExplicitModifiers = new ArrayList<Modifier>();
+    public static ArrayList<Modifier> AllImplicitModifiers = new ArrayList<Modifier>();
+    public static ArrayList<Modifier> AllEnchantModifiers = new ArrayList<Modifier>();
     
     public ArrayList<ModifierTier> tiers = new ArrayList<>();
     public ArrayList<BaseItem> ApplicableBases = new ArrayList<>();
@@ -93,43 +99,64 @@ public class Modifier implements Serializable {
         
     }
     
+    static Comparator<Modifier> comparator = new Comparator<Modifier>()  
+    {  
+        public int compare(Modifier m1, Modifier m2)  
+        {  
+            return m1.getStr().compareTo(m2.getStr());  
+        }  
+    };
+    
     public static Modifier getExplicitFromStr(String str)
     {
-        for (Modifier m : AllExplicitModifiers)
-        {
-            if (m.getStr().equals(str))
-            {
-                return m;
-            }
+//        for (Modifier m : AllExplicitModifiers)
+//        {
+//            if (m.getStr().equals(str))
+//            {
+//                return m;
+//            }
+//        }
+//        
+//        return null;
+        int i = Collections.binarySearch(AllExplicitModifiers, new Modifier(str), comparator);
+        if (i == -1) return null;
+        try {
+            return AllExplicitModifiers.get(i);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return null;
         }
-        
-        return null;
     }
     
     public static Modifier getImplicitFromStr(String str)
     {
-        for (Modifier m : AllImplicitModifiers)
-        {
-            if (m.getStr().equals(str))
-            {
-                return m;
-            }
-        }
-        
-        return null;
+//        for (Modifier m : AllImplicitModifiers)
+//        {
+//            if (m.getStr().equals(str))
+//            {
+//                return m;
+//            }
+//        }
+//        
+//        return null;
+        int i = Collections.binarySearch(AllImplicitModifiers, new Modifier(str), comparator);
+        if (i == -1) return null;
+        return AllImplicitModifiers.get(i);
     }
     
     public static Modifier getEnchantFromStr(String str)
     {
-        for (Modifier m : AllEnchantModifiers)
-        {
-            if (m.getStr().equals(str))
-            {
-                return m;
-            }
-        }
-        
-        return null;
+//        for (Modifier m : AllEnchantModifiers)
+//        {
+//            if (m.getStr().equals(str))
+//            {
+//                return m;
+//            }
+//        }
+//        
+//        return null;
+        int i = Collections.binarySearch(AllEnchantModifiers, new Modifier(str), comparator);
+        if (i == -1) return null;
+        return AllEnchantModifiers.get(i);
     }
     
     public Modifier dupe()
@@ -373,18 +400,25 @@ public class Modifier implements Serializable {
         
         return al;
     }
+    
+    public Modifier(String input)
+    {
+        this.str = input;
+    }
         
     @Override
     public boolean equals(Object that)
     {
         Modifier other = (Modifier) that;
         
-        if (ModGenerationTypeID == other.getModGenerationTypeID() &&
-            CorrectGroup.equals(other.getCorrectGroup()) &&
-            str.equals(other.getStr()))
-            return true;
-        
-        return false;
+//        if (ModGenerationTypeID == other.getModGenerationTypeID() &&
+//            CorrectGroup.equals(other.getCorrectGroup()) &&
+//            str.equals(other.getStr()))
+//            return true;
+//        
+//        return false;
+
+        return this.str.equals(other.getStr());
     }
     
     public static void genPseudo()
