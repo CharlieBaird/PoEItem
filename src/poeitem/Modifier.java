@@ -409,6 +409,11 @@ public class Modifier implements Serializable, Comparable {
     @Override
     public boolean equals(Object that)
     {
+        if (that instanceof String)
+        {
+            return this.str.equals(that);
+        }
+        
         Modifier other = (Modifier) that;
         
 //        if (ModGenerationTypeID == other.getModGenerationTypeID() &&
@@ -418,7 +423,15 @@ public class Modifier implements Serializable, Comparable {
 //        
 //        return false;
 
+        if (other == null) return false;
         return this.str.equals(other.getStr());
+    }
+    
+    @Override
+    public String toString()
+    {
+        char PreSuf = getModGenerationTypeID() == 1 ? 'P' : 'S';
+        return getStr(); 
     }
     
     public static void genPseudo()
