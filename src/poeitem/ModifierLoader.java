@@ -98,7 +98,7 @@ public class ModifierLoader {
                         String str = obj.get("str").getAsString();
                         int itemLevel = Integer.valueOf(obj.get("Level").getAsString());
                         
-                        if (str != null && str.equals("1 Added Passive Skill is a Jewel Socket")) continue;
+                        if (str != null && (str.equals("1 Added Passive Skill is a Jewel Socket") || str.equals("<span class='mod-value'>2</span> Added Passive Skills are Jewel Sockets"))) continue;
 
                         String tierName = null;
                         try {
@@ -115,6 +115,8 @@ public class ModifierLoader {
                 }
             }
         }
+        
+        new Modifier("2", "Delve", "Has # Abyssal Socket", Type.EXPLICIT, true);
         
         for (int i=0; i<BaseItem.AllBaseItems.size(); i++)
         {
@@ -134,25 +136,8 @@ public class ModifierLoader {
         Collections.sort(Modifier.AllEnchantModifiers);
         Collections.sort(Modifier.AllImplicitModifiers);
         
-        String content = contentFromTextFile("/resources/clusternotables.txt");
-
-        String[] specNotable = content.split("[.]");
-        specNotable = removeDuplicates(specNotable);
-
-        for (String s : specNotable)
-        {                
-            Pattern p = Pattern.compile("([PS]{1})([_]+)([a-zA-Z -]*)");
-            Matcher m = p.matcher(s);
-
-            if (m.find())
-            {
-                int ps = m.group(1).equals("P") ? 1 : 2;
-                String mod = "1 Added Passive Skill is " + m.group(3);
-
-                Modifier cm = new Modifier(String.valueOf(ps), "ClusterJewelNotable", mod, Type.EXPLICIT, true);
-                cm.addToBase(Base.SMALL_CLUSTER_JEWEL, Base.MEDIUM_CLUSTER_JEWEL, Base.LARGE_CLUSTER_JEWEL);
-            }
-        }
+        genClusterMods();
+        
         String data;
         data = contentFromTextFile("/resources/corruptedimplicits.txt");
         genCorruptedImplicits(data);
@@ -189,6 +174,64 @@ public class ModifierLoader {
         Collections.sort(Modifier.AllEnchantModifiers);
         Collections.sort(Modifier.AllImplicitModifiers);
     }
+    
+    private static void genClusterMods()
+    {
+        // Generate base enchantments
+        String content = contentFromTextFile("/resources/clusterbases.txt");
+        String[] specBase = content.split("[.]");
+        specBase = removeDuplicates(specBase);
+        for (String s : specBase)
+        {
+            Modifier cb = new Modifier("0", "ClusterJewelBase", s, Type.ENCHANT, true);
+            cb.addToBase(Base.SMALL_CLUSTER_JEWEL, Base.MEDIUM_CLUSTER_JEWEL, Base.LARGE_CLUSTER_JEWEL);
+            cb = new Modifier("-1", "ClusterJewelBase", s, Type.EXPLICIT, true);
+            cb.addToBase(Base.SMALL_CLUSTER_JEWEL, Base.MEDIUM_CLUSTER_JEWEL, Base.LARGE_CLUSTER_JEWEL);
+        }
+        
+        Pattern p = Pattern.compile("([value=\"]{7})([^<>\\n\"]+)([\" cl|\\n]{4})");
+        
+        // Generate small cluster mods + notables
+        
+        content = contentFromTextFile("/resources/smallclustermods.txt");
+        content = content.replaceAll("([\\[\\]]{2})", "");
+        content = content.replaceAll("([Skill|Skills]{12})", "Skills");
+        Matcher m = p.matcher(content);
+        while (m.find())
+        {
+            String mod = m.group(2);
+            Modifier cj = new Modifier("1", "ClusterJewel", mod, Type.EXPLICIT, true);
+            cj.addToBase(Base.SMALL_CLUSTER_JEWEL);
+        }
+        
+        // Generate medium cluster mods + notables
+        
+        content = contentFromTextFile("/resources/mediumclustermods.txt");
+        content = content.replaceAll("([\\[\\]]{2})", "");
+        content = content.replaceAll("([Skill|Skills]{12})", "Skills");
+        m = p.matcher(content);
+        while (m.find())
+        {
+            String mod = m.group(2);
+            Modifier cj = new Modifier("1", "ClusterJewel", mod, Type.EXPLICIT, true);
+            cj.addToBase(Base.MEDIUM_CLUSTER_JEWEL);
+        }
+        
+        // Generate large cluster mods + notables
+        
+        content = contentFromTextFile("/resources/largeclustermods.txt");
+        content = content.replaceAll("([\\[\\]]{2})", "");
+        content = content.replaceAll("([Skill|Skills]{12})", "Skills");
+        m = p.matcher(content);
+        while (m.find())
+        {
+            String mod = m.group(2);
+            Modifier cj = new Modifier("1", "ClusterJewel", mod, Type.EXPLICIT, true);
+            cj.addToBase(Base.LARGE_CLUSTER_JEWEL);
+        }
+    }
+    
+    
             
     private static void genCrafted(String data)
     {
@@ -240,6 +283,8 @@ public class ModifierLoader {
             Modifier i = new Modifier("3", "Implicit", s, Type.IMPLICIT, true);
 //            i.print();
         }
+        
+        Modifier i = new Modifier("3", "Implicit", "Item sells for much more to vendors", Type.IMPLICIT, true);
     }
     
     private static void genSynthesisImplicits(String html) // https://pathofexile.gamepedia.com/List_of_synthesis_implicit_modifiers

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package poeitem;
 
 import java.io.Serializable;
@@ -14,9 +9,24 @@ import java.util.regex.Pattern;
 
 public class Modifier implements Serializable, Comparable {
 
+    private boolean containsIgnoreCase(String str1, String str2) {
+        return str1.toUpperCase().contains(str2.toUpperCase());
+    }
+    
     @Override
     public int compareTo(Object o) {
         return getStr().compareTo(((Modifier) o).getStr());
+    }
+
+    public boolean isCompat(String entry) {
+        for (ModifierTier mt : tiers)
+            if (containsIgnoreCase(mt.getName(),entry))
+                return true;
+        
+        if (containsIgnoreCase(this.getCorrectGroup(),entry))
+                return true;
+        
+        return false;
     }
     
     public enum Type {
@@ -109,54 +119,35 @@ public class Modifier implements Serializable, Comparable {
     
     public static Modifier getExplicitFromStr(String str)
     {
-//        for (Modifier m : AllExplicitModifiers)
-//        {
-//            if (m.getStr().equals(str))
-//            {
-//                return m;
-//            }
-//        }
-//        
-//        return null;
         int i = Collections.binarySearch(AllExplicitModifiers, new Modifier(str), comparator);
         if (i == -1) return null;
         try {
             return AllExplicitModifiers.get(i);
-        } catch (ArrayIndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException e) {
             return null;
         }
     }
     
     public static Modifier getImplicitFromStr(String str)
     {
-//        for (Modifier m : AllImplicitModifiers)
-//        {
-//            if (m.getStr().equals(str))
-//            {
-//                return m;
-//            }
-//        }
-//        
-//        return null;
         int i = Collections.binarySearch(AllImplicitModifiers, new Modifier(str), comparator);
         if (i == -1) return null;
-        return AllImplicitModifiers.get(i);
+        try {
+            return AllImplicitModifiers.get(i);
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
     }
     
     public static Modifier getEnchantFromStr(String str)
     {
-//        for (Modifier m : AllEnchantModifiers)
-//        {
-//            if (m.getStr().equals(str))
-//            {
-//                return m;
-//            }
-//        }
-//        
-//        return null;
         int i = Collections.binarySearch(AllEnchantModifiers, new Modifier(str), comparator);
         if (i == -1) return null;
-        return AllEnchantModifiers.get(i);
+        try {
+            return AllEnchantModifiers.get(i);
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
     }
     
     public Modifier dupe()
