@@ -194,8 +194,13 @@ public class ModifierLoader {
         // Generate small cluster mods + notables
         
         content = contentFromTextFile("/resources/smallclustermods.txt");
+        Matcher ma = Pattern.compile("([\\[]{2})([a-zA-Z]+)([|]{1})([a-zA-Z]+)([\\]]{2})").matcher(content);
+        while(ma.find())
+        {
+            content = content.replace(ma.group(0), ma.group(4));
+        }
         content = content.replaceAll("([\\[\\]]{2})", "");
-        content = content.replaceAll("([Skill|Skills]{12})", "Skills");
+        
         Matcher m = p.matcher(content);
         while (m.find())
         {
@@ -207,8 +212,13 @@ public class ModifierLoader {
         // Generate medium cluster mods + notables
         
         content = contentFromTextFile("/resources/mediumclustermods.txt");
+        ma = Pattern.compile("([\\[]{2})([a-zA-Z]+)([|]{1})([a-zA-Z]+)([\\]]{2})").matcher(content);
+        while(ma.find())
+        {
+            content = content.replace(ma.group(0), ma.group(4));
+        }
         content = content.replaceAll("([\\[\\]]{2})", "");
-        content = content.replaceAll("([Skill|Skills]{12})", "Skills");
+        
         m = p.matcher(content);
         while (m.find())
         {
@@ -220,8 +230,13 @@ public class ModifierLoader {
         // Generate large cluster mods + notables
         
         content = contentFromTextFile("/resources/largeclustermods.txt");
+        ma = Pattern.compile("([\\[]{2})([a-zA-Z]+)([|]{1})([a-zA-Z]+)([\\]]{2})").matcher(content);
+        while(ma.find())
+        {
+            content = content.replace(ma.group(0), ma.group(4));
+        }
         content = content.replaceAll("([\\[\\]]{2})", "");
-        content = content.replaceAll("([Skill|Skills]{12})", "Skills");
+        
         m = p.matcher(content);
         while (m.find())
         {
