@@ -47,6 +47,8 @@ public class Modifier implements Serializable, Comparable {
     private Base base;
     private boolean rejected = false;
     private boolean searchable = true;
+    public boolean isInfluenced = false;
+    public Influence influence = null;
 
     public boolean isSearchable() {
         return searchable;
@@ -95,7 +97,7 @@ public class Modifier implements Serializable, Comparable {
         if (ModGenerationTypeID == 4) ModGenerationTypeIDDisplay = 1;
         else if (ModGenerationTypeID == 5) ModGenerationTypeIDDisplay = 2;
         if (base != null)
-            System.out.printf("%-10s %-12s %-5s %-20s %-50s", base, type, ModGenerationTypeIDDisplay, CorrectGroup, str);
+            System.out.printf("%-6s %-10s %-12s %-5s %-20s %-50s", isInfluenced, base, type, ModGenerationTypeIDDisplay, CorrectGroup, str);
         else
             System.out.printf("%-12s %-5s %-20s %-50s", type, ModGenerationTypeIDDisplay, CorrectGroup, str);
         
@@ -218,7 +220,7 @@ public class Modifier implements Serializable, Comparable {
         return 1;
     }
     
-    public Modifier(String ModGenerationTypeID, String CorrectGroup, String str, Type type, String tierName, String base, int itemLevel)
+    public Modifier(String ModGenerationTypeID, String CorrectGroup, String str, Type type, String tierName, String base, int itemLevel, boolean isInfluence)
     {
         this(ModGenerationTypeID, CorrectGroup, str, type, true);
         
@@ -234,22 +236,40 @@ public class Modifier implements Serializable, Comparable {
             String s = multiple[i];
             
             Modifier other = new Modifier(ModGenerationTypeID, CorrectGroup, s, type, false);
+            other.isInfluenced = isInfluence;
             other.base = BaseItem.BaseItemKey.get(base);
             BaseItem b = BaseItem.getFromBase(other.base);
             
             Modifier existing = b.getExplicitFromStr(removeRolls(s, true));
             
-            if (existing == null) 
+            if (existing == null)
             {
                 b.assocModifiers.add(other);
                 existing = other;
             }
-            if (multiple.length == 1)
-            {
-                ModifierTier t = new ModifierTier(tierName, s, itemLevel);
-                if (!existing.tiers.contains(t)) {
-                    existing.tiers.add(t);
-                    Collections.sort(existing.tiers);
+            
+            ModifierTier t = new ModifierTier(tierName, s, itemLevel);
+            if (!existing.tiers.contains(t)) {
+                existing.tiers.add(t);
+                Collections.sort(existing.tiers);
+                
+                if (other.isInfluenced)
+                {
+                    switch (t.getName())
+                    {
+                        case "of Shaping": other.influence = Influence.SHAPER; break;
+                        case "of the Crusade":  other.influence = Influence.CRUSADER; break;
+                        case "of Redemption":  other.influence = Influence.REDEEMER; break;
+                        case "of the Elder":  other.influence = Influence.ELDER; break;
+                        case "of the Conquest":  other.influence = Influence.WARLORD; break;
+                        case "of the Hunt":  other.influence = Influence.HUNTER; break;
+                        case "Hunter's":  other.influence = Influence.HUNTER; break;
+                        case "Redeemer's":  other.influence = Influence.REDEEMER; break;
+                        case "The Shaper's":  other.influence = Influence.SHAPER; break;
+                        case "Warlord's":  other.influence = Influence.WARLORD; break;
+                        case "Crusader's":  other.influence = Influence.CRUSADER; break;
+                        case "Eldritch":  other.influence = Influence.ELDER; break;
+                    }
                 }
             }
         }

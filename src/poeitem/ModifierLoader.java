@@ -56,8 +56,12 @@ public class ModifierLoader {
             
             String[] influences = new String[] {"normal", "elder", "shaper", "crusader", "redeemer", "hunter", "warlord"};
             
+            int index = 0;
+            boolean isInfluenced = false;
             for (String influence : influences)
             {
+                if (index++ >= 1) isInfluenced = true;
+                    
                 JsonElement normalElement = object.get(influence);
             
                 Modifier m = null;
@@ -80,10 +84,12 @@ public class ModifierLoader {
                             // No name associated
                         }
                         
-                        if (tierName != null)
-                            m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT, tierName, baseName, itemLevel);
-                        else
+                        if (tierName != null) {
+                            m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT, tierName, baseName, itemLevel, isInfluenced);
+                        }
+                        else {
                             m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT, true);
+                        }
                     }
                 }
                 else if (normalElement.isJsonObject())
@@ -107,10 +113,12 @@ public class ModifierLoader {
                             // No name associated
                         }
                         
-                        if (tierName != null)
-                            m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT, tierName, baseName, itemLevel);
-                        else
+                        if (tierName != null) {
+                            m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT, tierName, baseName, itemLevel, isInfluenced);
+                        }
+                        else {
                             m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT, true);
+                        }
                     }
                 }
             }
