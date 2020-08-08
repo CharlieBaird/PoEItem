@@ -223,7 +223,7 @@ public class Modifier implements Serializable, Comparable {
     public Modifier(String ModGenerationTypeID, String CorrectGroup, String str, Type type, String tierName, String base, int itemLevel, boolean isInfluence)
     {
         this(ModGenerationTypeID, CorrectGroup, str, type, true);
-        if (rejected) return;
+//        if (rejected) return;
         
         str = str.replaceAll("<span class='mod-value'>", "");
         str = str.replaceAll("</span>", "");
