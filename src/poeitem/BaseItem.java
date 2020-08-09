@@ -120,4 +120,17 @@ public class BaseItem {
         
         return null;
     }
+    
+    public Modifier getExplicit(Modifier mod)
+    {
+        for (Modifier m : assocModifiers)
+        {
+            if (m.getStr().equals(mod.getStr()) && m.influence.equals(mod.influence))
+            {
+                return m;
+            }
+        }
+        
+        return null;
+    }
 }

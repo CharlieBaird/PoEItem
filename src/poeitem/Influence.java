@@ -1,6 +1,7 @@
 package poeitem;
 
 public enum Influence {
+    NORMAL ("Normal"),
     CRUSADER ("Crusader"),
     ELDER ("Elder"),
     HUNTER ("Hunter"),

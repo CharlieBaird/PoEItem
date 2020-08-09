@@ -88,7 +88,7 @@ public class ModifierLoader {
                             m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT, tierName, baseName, itemLevel, isInfluenced);
                         }
                         else {
-                            m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT, true);
+                            m = new Modifier(false, ModGenerationTypeID, "Modifier", str, Type.EXPLICIT, true);
                         }
                     }
                 }
@@ -117,14 +117,14 @@ public class ModifierLoader {
                             m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT, tierName, baseName, itemLevel, isInfluenced);
                         }
                         else {
-                            m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT, true);
+                            m = new Modifier(false, ModGenerationTypeID, "Modifier", str, Type.EXPLICIT, true);
                         }
                     }
                 }
             }
         }
         
-        new Modifier("2", "Delve", "Has # Abyssal Socket", Type.EXPLICIT, true);
+        new Modifier(false, "2", "Delve", "Has # Abyssal Socket", Type.EXPLICIT, true);
         
         for (int i=0; i<BaseItem.AllBaseItems.size(); i++)
         {
@@ -191,9 +191,9 @@ public class ModifierLoader {
         specBase = removeDuplicates(specBase);
         for (String s : specBase)
         {
-            Modifier cb = new Modifier("0", "ClusterJewelBase", s, Type.ENCHANT, true);
+            Modifier cb = new Modifier(false, "0", "ClusterJewelBase", s, Type.ENCHANT, true);
             cb.addToBase(Base.SMALL_CLUSTER_JEWEL, Base.MEDIUM_CLUSTER_JEWEL, Base.LARGE_CLUSTER_JEWEL);
-            cb = new Modifier("-1", "ClusterJewelBase", s, Type.EXPLICIT, true);
+            cb = new Modifier(false, "-1", "ClusterJewelBase", s, Type.EXPLICIT, true);
             cb.addToBase(Base.SMALL_CLUSTER_JEWEL, Base.MEDIUM_CLUSTER_JEWEL, Base.LARGE_CLUSTER_JEWEL);
         }
         
@@ -213,7 +213,7 @@ public class ModifierLoader {
         while (m.find())
         {
             String mod = m.group(2);
-            Modifier cj = new Modifier("1", "ClusterJewel", mod, Type.EXPLICIT, true);
+            Modifier cj = new Modifier(false, "1", "ClusterJewel", mod, Type.EXPLICIT, true);
             cj.addToBase(Base.SMALL_CLUSTER_JEWEL);
         }
         
@@ -231,7 +231,7 @@ public class ModifierLoader {
         while (m.find())
         {
             String mod = m.group(2);
-            Modifier cj = new Modifier("1", "ClusterJewel", mod, Type.EXPLICIT, true);
+            Modifier cj = new Modifier(false, "1", "ClusterJewel", mod, Type.EXPLICIT, true);
             cj.addToBase(Base.MEDIUM_CLUSTER_JEWEL);
         }
         
@@ -249,7 +249,7 @@ public class ModifierLoader {
         while (m.find())
         {
             String mod = m.group(2);
-            Modifier cj = new Modifier("1", "ClusterJewel", mod, Type.EXPLICIT, true);
+            Modifier cj = new Modifier(false, "1", "ClusterJewel", mod, Type.EXPLICIT, true);
             cj.addToBase(Base.LARGE_CLUSTER_JEWEL);
         }
     }
@@ -292,7 +292,7 @@ public class ModifierLoader {
             for (String cr : craft)
             {
 //                System.out.println(cr);
-                Modifier modifier = new Modifier(affixType, "Crafted", cr + " [crafted]", Type.CRAFT, true);
+                Modifier modifier = new Modifier(false, affixType, "Crafted", cr + " [crafted]", Type.CRAFT, true);
 //                modifier.print();
             }
         }
@@ -303,11 +303,11 @@ public class ModifierLoader {
         String[] lines = data.split("[*]");
         for (String s : lines)
         {
-            Modifier i = new Modifier("3", "Implicit", s, Type.IMPLICIT, true);
+            Modifier i = new Modifier(false, "3", "Implicit", s, Type.IMPLICIT, true);
 //            i.print();
         }
         
-        Modifier i = new Modifier("3", "Implicit", "Item sells for much more to vendors", Type.IMPLICIT, true);
+        Modifier i = new Modifier(false, "3", "Implicit", "Item sells for much more to vendors", Type.IMPLICIT, true);
     }
     
     private static void genSynthesisImplicits(String html) // https://pathofexile.gamepedia.com/List_of_synthesis_implicit_modifiers
@@ -318,7 +318,7 @@ public class ModifierLoader {
         while (m.find())
         {
             String base = m.group(2);
-            Modifier i = new Modifier("3", "Implicit", base, Type.IMPLICIT, true);
+            Modifier i = new Modifier(false, "3", "Implicit", base, Type.IMPLICIT, true);
         }
     }
     
@@ -331,7 +331,7 @@ public class ModifierLoader {
         while (m.find())
         {
             String base = m.group(2);
-            Modifier i = new Modifier("1", "MapMod", base, Type.EXPLICIT, true);
+            Modifier i = new Modifier(false, "1", "MapMod", base, Type.EXPLICIT, true);
             i.addToBase(Base.MAP);
         }
     }
@@ -345,7 +345,7 @@ public class ModifierLoader {
         while (m.find())
         {
             String base = m.group(2);
-            Modifier i = new Modifier("2", "MapMod", base, Type.EXPLICIT, true);
+            Modifier i = new Modifier(false, "2", "MapMod", base, Type.EXPLICIT, true);
             i.addToBase(Base.MAP);
         }
     }
@@ -359,7 +359,7 @@ public class ModifierLoader {
         while (m.find())
         {
             String base = m.group(2);
-            Modifier i = new Modifier("-4", "Enchantment", base, Type.ENCHANT, true);
+            Modifier i = new Modifier(false, "-4", "Enchantment", base, Type.ENCHANT, true);
         }
     }
     
@@ -374,7 +374,7 @@ public class ModifierLoader {
         while (m.find())
         {
             String base = m.group(2);
-            Modifier i = new Modifier("3", "Implicit", base, Type.IMPLICIT, true);
+            Modifier i = new Modifier(false, "3", "Implicit", base, Type.IMPLICIT, true);
         }
     }
     

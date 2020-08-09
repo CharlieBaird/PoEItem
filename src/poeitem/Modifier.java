@@ -48,7 +48,7 @@ public class Modifier implements Serializable, Comparable {
     private boolean rejected = false;
     private boolean searchable = true;
     public boolean isInfluenced = false;
-    public Influence influence = null;
+    public Influence influence = Influence.NORMAL;
 
     public boolean isSearchable() {
         return searchable;
@@ -97,7 +97,7 @@ public class Modifier implements Serializable, Comparable {
         if (ModGenerationTypeID == 4) ModGenerationTypeIDDisplay = 1;
         else if (ModGenerationTypeID == 5) ModGenerationTypeIDDisplay = 2;
         if (base != null)
-            System.out.printf("%-6s %-10s %-12s %-5s %-20s %-50s", isInfluenced, base, type, ModGenerationTypeIDDisplay, CorrectGroup, str);
+            System.out.printf("%-12s %-10s %-12s %-5s %-20s %-50s", influence, base, type, ModGenerationTypeIDDisplay, CorrectGroup, str);
         else
             System.out.printf("%-12s %-5s %-20s %-50s", type, ModGenerationTypeIDDisplay, CorrectGroup, str);
         
@@ -106,8 +106,8 @@ public class Modifier implements Serializable, Comparable {
                 System.out.print(d + " ");
         System.out.println();
         if (tiers.size() >= 1)
-                for (ModifierTier t : tiers)
-                    t.print();
+            for (ModifierTier t : tiers)
+                t.print();
         
     }
     
@@ -154,7 +154,7 @@ public class Modifier implements Serializable, Comparable {
     
     public Modifier dupe()
     {
-        return new Modifier(String.valueOf(this.getModGenerationTypeID()), this.CorrectGroup, this.str, this.type, true);
+        return new Modifier(false, String.valueOf(this.getModGenerationTypeID()), this.CorrectGroup, this.str, this.type, true);
     }
     
     public void addToBase(Base... bases)
@@ -222,8 +222,7 @@ public class Modifier implements Serializable, Comparable {
     
     public Modifier(String ModGenerationTypeID, String CorrectGroup, String str, Type type, String tierName, String base, int itemLevel, boolean isInfluence)
     {
-        this(ModGenerationTypeID, CorrectGroup, str, type, true);
-//        if (rejected) return;
+        this(true, ModGenerationTypeID, CorrectGroup, str, type, true);
         
         str = str.replaceAll("<span class='mod-value'>", "");
         str = str.replaceAll("</span>", "");
@@ -236,12 +235,32 @@ public class Modifier implements Serializable, Comparable {
         {
             String s = multiple[i];
             
-            Modifier other = new Modifier(ModGenerationTypeID, CorrectGroup, s, type, false);
+            Modifier other = new Modifier(true, ModGenerationTypeID, CorrectGroup, s, type, false);
             other.isInfluenced = isInfluence;
             other.base = BaseItem.BaseItemKey.get(base);
             BaseItem b = BaseItem.getFromBase(other.base);
             
-            Modifier existing = b.getExplicitFromStr(removeRolls(s, true));
+            ModifierTier t = new ModifierTier(tierName, s, itemLevel);
+            if (other.isInfluenced)
+            {
+                switch (t.getName())
+                {
+                    case "of Shaping": other.influence = Influence.SHAPER; break;
+                    case "of the Crusade":  other.influence = Influence.CRUSADER; break;
+                    case "of Redemption":  other.influence = Influence.REDEEMER; break;
+                    case "of the Elder":  other.influence = Influence.ELDER; break;
+                    case "of the Conquest":  other.influence = Influence.WARLORD; break;
+                    case "of the Hunt":  other.influence = Influence.HUNTER; break;
+                    case "Hunter's":  other.influence = Influence.HUNTER; break;
+                    case "Redeemer's":  other.influence = Influence.REDEEMER; break;
+                    case "The Shaper's":  other.influence = Influence.SHAPER; break;
+                    case "Warlord's":  other.influence = Influence.WARLORD; break;
+                    case "Crusader's":  other.influence = Influence.CRUSADER; break;
+                    case "Eldritch":  other.influence = Influence.ELDER; break;
+                }
+            }
+            
+            Modifier existing = b.getExplicit(other);
             
             if (existing == null)
             {
@@ -249,34 +268,16 @@ public class Modifier implements Serializable, Comparable {
                 existing = other;
             }
             
-            ModifierTier t = new ModifierTier(tierName, s, itemLevel);
             if (!existing.tiers.contains(t)) {
                 existing.tiers.add(t);
                 Collections.sort(existing.tiers);
-                
-                if (other.isInfluenced)
-                {
-                    switch (t.getName())
-                    {
-                        case "of Shaping": other.influence = Influence.SHAPER; break;
-                        case "of the Crusade":  other.influence = Influence.CRUSADER; break;
-                        case "of Redemption":  other.influence = Influence.REDEEMER; break;
-                        case "of the Elder":  other.influence = Influence.ELDER; break;
-                        case "of the Conquest":  other.influence = Influence.WARLORD; break;
-                        case "of the Hunt":  other.influence = Influence.HUNTER; break;
-                        case "Hunter's":  other.influence = Influence.HUNTER; break;
-                        case "Redeemer's":  other.influence = Influence.REDEEMER; break;
-                        case "The Shaper's":  other.influence = Influence.SHAPER; break;
-                        case "Warlord's":  other.influence = Influence.WARLORD; break;
-                        case "Crusader's":  other.influence = Influence.CRUSADER; break;
-                        case "Eldritch":  other.influence = Influence.ELDER; break;
-                    }
-                }
             }
+            
+            other.addToLists();
         }
     }
     
-    public Modifier(String ModGenerationTypeID, String CorrectGroup, String str, Type type, boolean addToLists)
+    public Modifier(boolean bypass, String ModGenerationTypeID, String CorrectGroup, String str, Type type, boolean addToLists)
     {
         try {
             this.ModGenerationTypeID = Integer.valueOf(ModGenerationTypeID);
@@ -300,7 +301,7 @@ public class Modifier implements Serializable, Comparable {
             str = jointModifier[0];
             for (int i=1; i<jointModifier.length; i++)
             {
-                Modifier other = new Modifier(ModGenerationTypeID, CorrectGroup, jointModifier[i], type, addToLists);
+                Modifier other = new Modifier(bypass, ModGenerationTypeID, CorrectGroup, jointModifier[i], type, addToLists);
 //                other.print();
             }
         }
@@ -311,56 +312,62 @@ public class Modifier implements Serializable, Comparable {
         int count = str.length() - str.replaceAll("#", "").length();
         rolls = new double[count];
         
-        if (addToLists)
+        if (addToLists && !bypass)
         {
-            switch (type)
-            {
-                case IMPLICIT:
-                    for (Modifier implModifier : AllImplicitModifiers)
-                        if (implModifier.str.equals(this.str))
-                        {
-                            rejected = true;
-                            return;
-                        }
-                    AllImplicitModifiers.add(this);
-                    break;
-                case EXPLICIT:
-                case BASE:
-                case TOTAL:
-                case PSEUDO:
-                    for (Modifier explModifier : AllExplicitModifiers)
-                        if (explModifier.str.equals(this.str))
-                        {
-                            rejected = true;
-                            return;
-                        }
-                    AllExplicitModifiers.add(this);
-                    break;
-                case CRAFT:
-                    for (Modifier explModifier : AllExplicitModifiers)
-                        if (explModifier.str.equals(this.str) && explModifier.getCorrectGroup().equals("Crafted"))
-                        {
-                            rejected = true;
-                            return;
-                        }
-                    AllExplicitModifiers.add(this);
-                    break;
-                case ENCHANT:
-                    for (Modifier enchModifier : AllEnchantModifiers)
-                        if (enchModifier.str.equals(this.str))
-                        {
-                            rejected = true;
-                            return;
-                        }
-                    AllEnchantModifiers.add(this);
-                    break;
-            }
+            addToLists();
+        }
+    }
+    
+    public void addToLists()
+    {
+        switch (type)
+        {
+            case IMPLICIT:
+                for (Modifier implModifier : AllImplicitModifiers)
+                    if (implModifier.str.equals(this.str))
+                    {
+                        rejected = true;
+                        return;
+                    }
+                AllImplicitModifiers.add(this);
+                break;
+            case EXPLICIT:
+            case BASE:
+            case TOTAL:
+            case PSEUDO:
+                for (Modifier explModifier : AllExplicitModifiers) {
+                    if (explModifier.str.equals(this.str) && explModifier.influence.equals(this.influence))
+                    {
+                        rejected = true;
+                        return;
+                    }
+                }
+                AllExplicitModifiers.add(this);
+                break;
+            case CRAFT:
+                for (Modifier explModifier : AllExplicitModifiers)
+                    if (explModifier.str.equals(this.str) && explModifier.getCorrectGroup().equals("Crafted"))
+                    {
+                        rejected = true;
+                        return;
+                    }
+                AllExplicitModifiers.add(this);
+                break;
+            case ENCHANT:
+                for (Modifier enchModifier : AllEnchantModifiers)
+                    if (enchModifier.str.equals(this.str))
+                    {
+                        rejected = true;
+                        return;
+                    }
+                AllEnchantModifiers.add(this);
+                break;
         }
     }
     
     public Modifier(String ModGenerationTypeID, String CorrectGroup, String str, String[] pseudoSupportedModifiersStrs)
     {
-        this(ModGenerationTypeID, CorrectGroup, str, Type.PSEUDO, true);
+        this(false, ModGenerationTypeID, CorrectGroup, str, Type.PSEUDO, true);
         
         pseudoSupportedModifiers = new Modifier[pseudoSupportedModifiersStrs.length];
         for (int i=0; i<pseudoSupportedModifiersStrs.length; i++)
@@ -371,7 +378,7 @@ public class Modifier implements Serializable, Comparable {
     
     public Modifier(String ModGenerationTypeID, String CorrectGroup, String str, Type type, boolean addToLists, boolean isSearchable)
     {
-        this(ModGenerationTypeID, CorrectGroup, str, type, addToLists);
+        this(false, ModGenerationTypeID, CorrectGroup, str, type, addToLists);
         searchable = isSearchable;
     }
         
@@ -427,13 +434,6 @@ public class Modifier implements Serializable, Comparable {
         }
         
         Modifier other = (Modifier) that;
-        
-//        if (ModGenerationTypeID == other.getModGenerationTypeID() &&
-//            CorrectGroup.equals(other.getCorrectGroup()) &&
-//            str.equals(other.getStr()))
-//            return true;
-//        
-//        return false;
 
         if (other == null) return false;
         return this.str.equals(other.getStr());
@@ -465,19 +465,19 @@ public class Modifier implements Serializable, Comparable {
         });
         other.addToAllBasesExcept(Base.MAP, Base.SMALL_CLUSTER_JEWEL, Base.MEDIUM_CLUSTER_JEWEL, Base.LARGE_CLUSTER_JEWEL);
         
-        other = new Modifier("-3", "Total", "Energy Shield: #", Type.TOTAL, true);
+        other = new Modifier(false, "-3", "Total", "Energy Shield: #", Type.TOTAL, true);
         other.addToBase(Base.HELMET, Base.BODY_ARMOUR, Base.SHIELD, Base.GLOVES, Base.BOOTS);
-        other = new Modifier("-3", "Total", "Evasion Rating: #", Type.TOTAL, true);
+        other = new Modifier(false, "-3", "Total", "Evasion Rating: #", Type.TOTAL, true);
         other.addToBase(Base.HELMET, Base.BODY_ARMOUR, Base.SHIELD, Base.GLOVES, Base.BOOTS);
-        other = new Modifier("-3", "Total", "Armour: #", Type.TOTAL, true);
+        other = new Modifier(false, "-3", "Total", "Armour: #", Type.TOTAL, true);
         other.addToBase(Base.HELMET, Base.BODY_ARMOUR, Base.SHIELD, Base.GLOVES, Base.BOOTS);
         
-        other = new Modifier("-2", "Pseudo", "# Empty Suffix Modifiers", Type.PSEUDO, true);
+        other = new Modifier(false, "-2", "Pseudo", "# Empty Suffix Modifiers", Type.PSEUDO, true);
         other.addToAllBasesExcept();
-        other = new Modifier("-2", "Pseudo", "# Empty Prefix Modifiers", Type.PSEUDO, true);
+        other = new Modifier(false, "-2", "Pseudo", "# Empty Prefix Modifiers", Type.PSEUDO, true);
         other.addToAllBasesExcept();
         
-        other = new Modifier("-3", "Base", "Quality: +#%", Type.BASE, true);
+        other = new Modifier(false, "-3", "Base", "Quality: +#%", Type.BASE, true);
         other.addToAllBasesExcept();
         other = new Modifier("-3", "Base", "Critical Strike Chance: #%", Type.BASE, true, false);
         other = new Modifier("-3", "Base", "Attacks per Second: #", Type.BASE, true, false);
@@ -488,20 +488,20 @@ public class Modifier implements Serializable, Comparable {
         other = new Modifier("-3", "Base", "Int: #", Type.BASE, true, false);
         other = new Modifier("-3", "Base", "Map Tier: #", Type.BASE, true, false);
         other = new Modifier("-3", "Base", "Item Level: #", Type.BASE, true, false);
-        other = new Modifier("-3", "Base", "Item Quantity: +#%", Type.BASE, true);
+        other = new Modifier(false, "-3", "Base", "Item Quantity: +#%", Type.BASE, true);
         other.addToBase(Base.MAP);
-        other = new Modifier("-3", "Base", "Item Rarity: +#%", Type.BASE, true);
+        other = new Modifier(false, "-3", "Base", "Item Rarity: +#%", Type.BASE, true);
         other.addToBase(Base.MAP);
-        other = new Modifier("-3", "Base", "Monster Pack Size: +#%", Type.BASE, true);
+        other = new Modifier(false, "-3", "Base", "Monster Pack Size: +#%", Type.BASE, true);
         other.addToBase(Base.MAP);
         other = new Modifier("-3", "Base", "Item Level: #", Type.BASE, true, false);
         other = new Modifier("-3", "Base", "Chance to Block: #%", Type.BASE, true, false);
         
-        other = new Modifier("5", "Crafted", "Prefixes Cannot Be Changed [crafted]", Type.CRAFT, true);
-        other = new Modifier("4", "Crafted", "Suffixes Cannot Be Changed [crafted]", Type.CRAFT, true);
-        other = new Modifier("5", "Crafted", "Can have up to 3 Crafted Modifiers [crafted]", Type.CRAFT, true);
-        other = new Modifier("5", "Crafted", "Cannot roll Attack Modifiers [crafted]", Type.CRAFT, true);
-        other = new Modifier("5", "Crafted", "Cannot roll Caster Modifiers [crafted]", Type.CRAFT, true);
+        other = new Modifier(false, "5", "Crafted", "Prefixes Cannot Be Changed [crafted]", Type.CRAFT, true);
+        other = new Modifier(false, "4", "Crafted", "Suffixes Cannot Be Changed [crafted]", Type.CRAFT, true);
+        other = new Modifier(false, "5", "Crafted", "Can have up to 3 Crafted Modifiers [crafted]", Type.CRAFT, true);
+        other = new Modifier(false, "5", "Crafted", "Cannot roll Attack Modifiers [crafted]", Type.CRAFT, true);
+        other = new Modifier(false, "5", "Crafted", "Cannot roll Caster Modifiers [crafted]", Type.CRAFT, true);
         
         other = new Modifier("-3", "FlaskBase", "Recovers # Life over # Seconds", Type.BASE, true, false);
         other = new Modifier("-3", "FlaskBase", "Recovers # Mana over # Seconds", Type.BASE, true, false);
@@ -509,13 +509,13 @@ public class Modifier implements Serializable, Comparable {
         other = new Modifier("-3", "FlaskBase", "Currently has # Charges", Type.BASE, true, false);
         other = new Modifier("-3", "FlaskBase", "Lasts # Seconds", Type.BASE, true, false);
         
-        other = new Modifier("2", "Aspect", "Grants Level # Aspect of the Avian Skill", Type.EXPLICIT, true);
+        other = new Modifier(false, "2", "Aspect", "Grants Level # Aspect of the Avian Skill", Type.EXPLICIT, true);
         other.addToAllBasesExcept(Base.MAP, Base.SMALL_CLUSTER_JEWEL, Base.MEDIUM_CLUSTER_JEWEL, Base.LARGE_CLUSTER_JEWEL);
-        other = new Modifier("2", "Aspect", "Grants Level # Aspect of the Crab Skill", Type.EXPLICIT, true);
+        other = new Modifier(false, "2", "Aspect", "Grants Level # Aspect of the Crab Skill", Type.EXPLICIT, true);
         other.addToAllBasesExcept(Base.MAP, Base.SMALL_CLUSTER_JEWEL, Base.MEDIUM_CLUSTER_JEWEL, Base.LARGE_CLUSTER_JEWEL);
-        other = new Modifier("2", "Aspect", "Grants Level # Aspect of the Spider Skill", Type.EXPLICIT, true);
+        other = new Modifier(false, "2", "Aspect", "Grants Level # Aspect of the Spider Skill", Type.EXPLICIT, true);
         other.addToAllBasesExcept(Base.MAP, Base.SMALL_CLUSTER_JEWEL, Base.MEDIUM_CLUSTER_JEWEL, Base.LARGE_CLUSTER_JEWEL);
-        other = new Modifier("2", "Aspect", "Grants Level # Aspect of the Cat Skill", Type.EXPLICIT, true);
+        other = new Modifier(false, "2", "Aspect", "Grants Level # Aspect of the Cat Skill", Type.EXPLICIT, true);
         other.addToAllBasesExcept(Base.MAP, Base.SMALL_CLUSTER_JEWEL, Base.MEDIUM_CLUSTER_JEWEL, Base.LARGE_CLUSTER_JEWEL);
     }
 }
