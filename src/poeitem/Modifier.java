@@ -472,10 +472,10 @@ public class Modifier implements Serializable, Comparable {
         other = new Modifier(false, "-3", "Total", "Armour: #", Type.TOTAL, true);
         other.addToBase(Base.HELMET, Base.BODY_ARMOUR, Base.SHIELD, Base.GLOVES, Base.BOOTS);
         
-        other = new Modifier(false, "-2", "Pseudo", "# Empty Suffix Modifiers", Type.PSEUDO, true);
-        other.addToAllBasesExcept();
-        other = new Modifier(false, "-2", "Pseudo", "# Empty Prefix Modifiers", Type.PSEUDO, true);
-        other.addToAllBasesExcept();
+//        other = new Modifier(false, "-2", "Pseudo", "# Empty Suffix Modifiers", Type.PSEUDO, true);
+//        other.addToAllBasesExcept();
+//        other = new Modifier(false, "-2", "Pseudo", "# Empty Prefix Modifiers", Type.PSEUDO, true);
+//        other.addToAllBasesExcept();
         
         other = new Modifier(false, "-3", "Base", "Quality: +#%", Type.BASE, true);
         other.addToAllBasesExcept();
