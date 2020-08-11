@@ -124,7 +124,8 @@ public class ModifierLoader {
             }
         }
         
-        new Modifier(false, "2", "Delve", "Has # Abyssal Socket", Type.EXPLICIT, true);
+        Modifier abyss = new Modifier(false, "2", "Delve", "Has # Abyssal Socket", Type.EXPLICIT, true);
+        abyss.addToAllBasesExcept();
         
         for (int i=0; i<BaseItem.AllBaseItems.size(); i++)
         {
