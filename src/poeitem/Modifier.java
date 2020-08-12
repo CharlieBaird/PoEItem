@@ -28,6 +28,15 @@ public class Modifier implements Serializable, Comparable {
         
         return false;
     }
+
+    public boolean exactEquals(Modifier that) {
+        if (that == null) return false;
+        return
+            this.str.equals(that.str) &&
+            this.influence == that.influence &&
+            this.base == that.base;
+                
+    }
     
     public enum Type {
         EXPLICIT, IMPLICIT, ENCHANT, CRAFT, BASE, PSEUDO, TOTAL

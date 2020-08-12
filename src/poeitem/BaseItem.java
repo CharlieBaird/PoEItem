@@ -133,4 +133,13 @@ public class BaseItem {
         
         return null;
     }
+
+    public boolean containsExact(Modifier assocMod) {
+        for (Modifier m : assocModifiers)
+        {
+            if (m.exactEquals(assocMod)) return true;
+        }
+        
+        return false;
+    }
 }
