@@ -175,6 +175,9 @@ public class ModifierLoader {
         data = contentFromTextFile("/resources/enchants.txt");
         genEnchantments(data);
         
+        data = contentFromTextFile("/resources/sextants.txt");
+        genSextants(data);
+        
         for (int i=0; i<BaseItem.AllBaseItems.size(); i++)
         {
             Collections.sort(BaseItem.AllBaseItems.get(i).assocModifiers);
@@ -182,6 +185,26 @@ public class ModifierLoader {
         Collections.sort(Modifier.AllExplicitModifiers);
         Collections.sort(Modifier.AllEnchantModifiers);
         Collections.sort(Modifier.AllImplicitModifiers);
+    }
+    
+    private static void genSextants(String content)
+    {
+        content = content.replaceAll("([<]{1})([br>]{3})([ class=\"mod_grey\">map_extra_content_weighting \\[0123456789\\]<\\/sp]{50,100})([an>]{3})", "");
+        content = content.replaceAll("\n", "");
+        content = content.replaceAll("([<spa]{4})([n class=\"mod_grey\">map_mission_id \\[0-9\\]/<br>]{23,100})", "");
+        content = content.replaceAll("([<spa]{4})([n class=\"mod_grey\">map_strongbox_monsters_movement_velocity_+% \\[0-9\\]/<]{23,100})([br>]{3})", "");
+        content = content.replaceAll("([<br>]{4})([trongbox_monsters_movement_velocity_+% \\[25\\]]{20,100})", "");
+        content = content.replaceAll("([<br>]{4})([us_barrel_% \\[0-9\\]]{10,20})", "");
+        content = content.replaceAll("<span class=\"mod-value\">", "");
+        content = content.replaceAll("</span>", "");
+                
+        Pattern p = Pattern.compile("([<b]{2})([r>]{2})([0-9a-zA-Z %\"'<>-]+)([<]{1})([/td>]{4})");
+        Matcher m = p.matcher(content);
+        
+        while (m.find())
+        {
+            Modifier mod = new Modifier("Sextant", m.group(3));
+        }
     }
     
     private static void genClusterMods()

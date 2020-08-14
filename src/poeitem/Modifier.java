@@ -390,6 +390,25 @@ public class Modifier implements Serializable, Comparable {
         this(false, ModGenerationTypeID, CorrectGroup, str, type, addToLists);
         searchable = isSearchable;
     }
+    
+    // Sextant
+    public Modifier(String CorrectGroup, String str)
+    {
+        this.CorrectGroup = CorrectGroup;
+        this.type = Type.EXPLICIT;
+        this.base = Base.WATCHSTONE;
+        
+        str = removeRolls(str, true);
+        this.str = str.replaceAll("([<]{1})([br>]{3})", "\n");
+        
+        if (!BaseItem.getFromBase(base).assocModifiers.contains(this))
+        {
+            BaseItem.getFromBase(base).assocModifiers.add(this);
+        }
+        
+        int count = str.length() - str.replaceAll("#", "").length();
+        rolls = new double[count];
+    }
         
     public static String removeRolls(String str, boolean removeDouble)
     {
@@ -464,7 +483,7 @@ public class Modifier implements Serializable, Comparable {
             "+#% to Fire Resistance",
             "+#% to Lightning Resistance"
         });
-        other.addToAllBasesExcept(Base.MAP, Base.SMALL_CLUSTER_JEWEL, Base.MEDIUM_CLUSTER_JEWEL, Base.LARGE_CLUSTER_JEWEL);
+        other.addToAllBasesExcept(Base.MAP, Base.SMALL_CLUSTER_JEWEL, Base.MEDIUM_CLUSTER_JEWEL, Base.LARGE_CLUSTER_JEWEL, Base.WATCHSTONE);
         other = new Modifier("-1", "Pseudo", "+#% total Resistance", new String[]
         {
             "+#% to Cold Resistance",
@@ -472,7 +491,7 @@ public class Modifier implements Serializable, Comparable {
             "+#% to Lightning Resistance",
             "+#% to Chaos Resistance"
         });
-        other.addToAllBasesExcept(Base.MAP, Base.SMALL_CLUSTER_JEWEL, Base.MEDIUM_CLUSTER_JEWEL, Base.LARGE_CLUSTER_JEWEL);
+        other.addToAllBasesExcept(Base.MAP, Base.SMALL_CLUSTER_JEWEL, Base.MEDIUM_CLUSTER_JEWEL, Base.LARGE_CLUSTER_JEWEL, Base.WATCHSTONE);
         
         other = new Modifier(false, "-3", "Total", "Energy Shield: #", Type.TOTAL, true);
         other.addToBase(Base.HELMET, Base.BODY_ARMOUR, Base.SHIELD, Base.GLOVES, Base.BOOTS);
@@ -487,7 +506,7 @@ public class Modifier implements Serializable, Comparable {
 //        other.addToAllBasesExcept();
         
         other = new Modifier(false, "-3", "Base", "Quality: +#%", Type.BASE, true);
-        other.addToAllBasesExcept();
+        other.addToAllBasesExcept(Base.WATCHSTONE);
         other = new Modifier("-3", "Base", "Critical Strike Chance: #%", Type.BASE, true, false);
         other = new Modifier("-3", "Base", "Attacks per Second: #", Type.BASE, true, false);
         other = new Modifier("-3", "Base", "Weapon Range: #", Type.BASE, true, false);
@@ -519,12 +538,12 @@ public class Modifier implements Serializable, Comparable {
         other = new Modifier("-3", "FlaskBase", "Lasts # Seconds", Type.BASE, true, false);
         
         other = new Modifier(false, "2", "Aspect", "Grants Level # Aspect of the Avian Skill", Type.EXPLICIT, true);
-        other.addToAllBasesExcept(Base.MAP, Base.SMALL_CLUSTER_JEWEL, Base.MEDIUM_CLUSTER_JEWEL, Base.LARGE_CLUSTER_JEWEL);
+        other.addToAllBasesExcept(Base.MAP, Base.SMALL_CLUSTER_JEWEL, Base.MEDIUM_CLUSTER_JEWEL, Base.LARGE_CLUSTER_JEWEL, Base.WATCHSTONE);
         other = new Modifier(false, "2", "Aspect", "Grants Level # Aspect of the Crab Skill", Type.EXPLICIT, true);
-        other.addToAllBasesExcept(Base.MAP, Base.SMALL_CLUSTER_JEWEL, Base.MEDIUM_CLUSTER_JEWEL, Base.LARGE_CLUSTER_JEWEL);
+        other.addToAllBasesExcept(Base.MAP, Base.SMALL_CLUSTER_JEWEL, Base.MEDIUM_CLUSTER_JEWEL, Base.LARGE_CLUSTER_JEWEL, Base.WATCHSTONE);
         other = new Modifier(false, "2", "Aspect", "Grants Level # Aspect of the Spider Skill", Type.EXPLICIT, true);
-        other.addToAllBasesExcept(Base.MAP, Base.SMALL_CLUSTER_JEWEL, Base.MEDIUM_CLUSTER_JEWEL, Base.LARGE_CLUSTER_JEWEL);
+        other.addToAllBasesExcept(Base.MAP, Base.SMALL_CLUSTER_JEWEL, Base.MEDIUM_CLUSTER_JEWEL, Base.LARGE_CLUSTER_JEWEL, Base.WATCHSTONE);
         other = new Modifier(false, "2", "Aspect", "Grants Level # Aspect of the Cat Skill", Type.EXPLICIT, true);
-        other.addToAllBasesExcept(Base.MAP, Base.SMALL_CLUSTER_JEWEL, Base.MEDIUM_CLUSTER_JEWEL, Base.LARGE_CLUSTER_JEWEL);
+        other.addToAllBasesExcept(Base.MAP, Base.SMALL_CLUSTER_JEWEL, Base.MEDIUM_CLUSTER_JEWEL, Base.LARGE_CLUSTER_JEWEL, Base.WATCHSTONE);
     }
 }
