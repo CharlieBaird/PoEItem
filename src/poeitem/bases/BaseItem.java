@@ -13,11 +13,28 @@ public class BaseItem {
     private String item_class;
     private String name;
     private Tag[] tags;
+    private CraftGroup craftGroup;
 
     public BaseItem(String item_class, String name, Tag[] tags) {
         this.item_class = item_class;
         this.name = name;
         this.tags = tags;
+        
+        switch (item_class)
+        {
+            case "Abyss Jewel":
+                craftGroup = CraftGroup.ABYSS_JEWEL;
+                break;
+            case "Jewel":
+                craftGroup = CraftGroup.JEWEL;
+                break;
+            case "Cluster Jewel":
+                craftGroup = CraftGroup.CLUSTER_JEWEL;
+                break;
+            default:
+                craftGroup = CraftGroup.NORMAL;
+                break;
+        }
     }
 
     public String getItem_class() {
@@ -30,6 +47,23 @@ public class BaseItem {
 
     public Tag[] getTags() {
         return tags;
+    }
+    
+    public CraftGroup getCrafGroup() {
+        return craftGroup;
+    }
+    
+    public static BaseItem getBaseItemFromName(String name)
+    {
+        for (BaseItem baseItem : BaseItems)
+        {
+            if (baseItem.getName().equals(name))
+            {
+                return baseItem;
+            }
+        }
+        
+        return null;
     }
     
     public void print()
@@ -60,10 +94,15 @@ public class BaseItem {
             }
             
             // Override "Jewel" for cluster jewels to be "Cluster Jewel"
+            // Override "AbyssJewel" to be "Jewel"
             String item_class = base_item.get("item_class").getAsString();
             if (domain.equals("affliction_jewel"))
             {
                 item_class = "Cluster Jewel";
+            }
+            if (domain.equals("abyss_jewel"))
+            {
+                item_class = "Abyss Jewel";
             }
             String name = base_item.get("name").getAsString();
             

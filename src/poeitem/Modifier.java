@@ -59,11 +59,6 @@ public class Modifier{
         Collections.sort(this.modifierTiers, ModifierTier.comparatorSortByKey);
     }
     
-    public static ArrayList<Modifier> getAllApplicableModifiers(ItemClass itemClass)
-    {
-        return getAllApplicableModifiers(itemClass.getBases().get(0));
-    }
-    
     public static ArrayList<Modifier> getAllApplicableModifiers(BaseItem baseItem)
     {
         ArrayList<Modifier> modifiers = new ArrayList<>();
@@ -84,7 +79,6 @@ public class Modifier{
                 continue;
             }
             Modifier mod = new Modifier(modifierTiers);
-            mod.print();
             modifiers.add(mod);
         }
         

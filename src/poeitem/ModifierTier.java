@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import poeitem.StatTranslations.StatTranslation;
+import poeitem.bases.CraftGroup;
 import poeitem.bases.ItemClass;
 
 public class ModifierTier implements Serializable, Comparable {
@@ -21,8 +22,10 @@ public class ModifierTier implements Serializable, Comparable {
     private Affix affix_type;
     private Stat[] ids;
     private Weight[] weights;
+    private CraftGroup craftGroup;
 
-    public ModifierTier(String key, String modGroup, StatTranslation[] statTranslations, String name, int required_level, Affix affix_type, Stat[] ids, Weight[] weights) {
+    public ModifierTier(String key, String modGroup, StatTranslation[] statTranslations, String name, 
+            int required_level, Affix affix_type, Stat[] ids, Weight[] weights, CraftGroup craftGroup) {
         this.key = key;
         this.modGroup = modGroup;
         this.statTranslations = statTranslations;
@@ -31,6 +34,7 @@ public class ModifierTier implements Serializable, Comparable {
         this.affix_type = affix_type;
         this.ids = ids;
         this.weights = weights;
+        this.craftGroup = craftGroup;
         
         int index = Collections.binarySearch(Modifier.AllExplicitModifiers, new Modifier(modGroup), Modifier.binarySearchComparator);
         if (index >= 0 && index < Modifier.AllExplicitModifiers.size())
@@ -78,6 +82,10 @@ public class ModifierTier implements Serializable, Comparable {
 
     public Weight[] getWeights() {
         return weights;
+    }
+
+    public CraftGroup getCraftGroup() {
+        return craftGroup;
     }
 
     @Override
@@ -128,6 +136,12 @@ public class ModifierTier implements Serializable, Comparable {
         
         boolean overrideDefault = false;
         
+        // XNOR Gate to check if either both the base and the mod are jewel based or both are not jewel based
+        if (this.craftGroup != base.getCrafGroup())
+        {
+            return false;
+        }
+        
         for (int i = 0; i < tagsOnBase.length; i++) {
             Tag tag = tagsOnBase[i];
             
@@ -167,3 +181,9 @@ public class ModifierTier implements Serializable, Comparable {
         }
     }
 }
+
+
+// affliction_ for cluster jewel tags
+// "tag": "affliction_
+
+// 

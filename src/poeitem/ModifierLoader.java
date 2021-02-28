@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 import poeitem.Id;
 import poeitem.ModifierTier.Affix;
 import poeitem.StatTranslations.StatTranslation;
+import poeitem.bases.CraftGroup;
 
 public class ModifierLoader {
     
@@ -62,12 +63,6 @@ public class ModifierLoader {
                 continue;
             }
             
-            String type = mod.get("type").getAsString();
-            if (key.contains("Jewel") || type.contains("Jewel"))
-            {
-                continue;
-            }
-            
             String domain = mod.get("domain").getAsString();
             if (domain.equals("atlas") || domain.equals("area") || domain.equals("crafted") || domain.equals("delve") || domain.equals("flask"))
             {
@@ -76,6 +71,24 @@ public class ModifierLoader {
             if (domain.equals("misc") && !(generation_type.equals("prefix") || generation_type.equals("suffix")))
             {
                 continue;
+            }
+            
+            String type = mod.get("type").getAsString();
+            CraftGroup craftGroup = CraftGroup.NORMAL;
+            if (key.contains("Jewel") || type.contains("Jewel"))
+            {
+                if (domain.equals("abyss_jewel"))
+                {
+                    craftGroup = CraftGroup.ABYSS_JEWEL;
+                }
+                else if (domain.equals("affliction_jewel"))
+                {
+                    craftGroup = CraftGroup.CLUSTER_JEWEL;
+                }
+                else
+                {
+                    craftGroup = CraftGroup.JEWEL;
+                }
             }
             
             boolean is_essence_only = mod.get("is_essence_only").getAsBoolean();
@@ -135,7 +148,7 @@ public class ModifierLoader {
                 weights[i] = w;
             }
             
-            ModifierTier modifierTier = new ModifierTier(key, modGroup, statTranslations, name, required_level, affix_type, ids, weights);
+            ModifierTier modifierTier = new ModifierTier(key, modGroup, statTranslations, name, required_level, affix_type, ids, weights, craftGroup);
         }
         
         Modifier.setAllTiers();
