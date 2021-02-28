@@ -52,13 +52,19 @@ public class BaseItem {
         {
             JsonObject base_item = base_items.get(key).getAsJsonObject();
             
-            // Only accept entries of the domain "item"
-            if (!base_item.get("domain").getAsString().equals("item"))
+            // Only accept entries of the following domains.
+            String domain = base_item.get("domain").getAsString();
+            if (!domain.equals("item") && !domain.equals("affliction_jewel") && !domain.equals("misc") && !domain.equals("abyss_jewel"))
             {
                 continue;
             }
             
+            // Override "Jewel" for cluster jewels to be "Cluster Jewel"
             String item_class = base_item.get("item_class").getAsString();
+            if (domain.equals("affliction_jewel"))
+            {
+                item_class = "Cluster Jewel";
+            }
             String name = base_item.get("name").getAsString();
             
             JsonArray tagsJson = base_item.get("tags").getAsJsonArray();
