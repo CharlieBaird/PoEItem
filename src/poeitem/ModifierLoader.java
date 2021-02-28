@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 import poeitem.Id;
 import poeitem.ModifierTier.Affix;
 import poeitem.StatTranslations.StatTranslation;
+import poeitem.bases.Affliction;
 import poeitem.bases.CraftGroup;
 
 public class ModifierLoader {
@@ -36,6 +37,7 @@ public class ModifierLoader {
     {
         JsonParser parser = new JsonParser();
         
+        // Load mods string from json
         String modsString = getJson("mods.min");
         JsonObject mods = parser.parse(modsString).getAsJsonObject();
         
@@ -48,6 +50,11 @@ public class ModifierLoader {
         String stat_translationsString = getJson("stat_translations.min");
         JsonArray stat_translations = parser.parse(stat_translationsString).getAsJsonArray();
         new StatTranslations().load(stat_translations);
+        
+        // Load cluster jewel afflictons from json
+        String cluster_jewelsString = getJson("cluster_jewels.min");
+        JsonObject cluster_jewels = parser.parse(cluster_jewelsString).getAsJsonObject();
+
         
         Set<String> modKeys = mods.keySet();
         for (String key : modKeys)
@@ -152,6 +159,30 @@ public class ModifierLoader {
         }
         
         Modifier.setAllTiers();
+        
+        // Loading almost done. Adding afflictions to Large/Medium/Small cluster jewels (enchantments)
+        
+        for (int i=0; i<cluster_jewels.keySet().size(); i++)
+        {
+            JsonObject clusterSize = cluster_jewels.get((String) cluster_jewels.keySet().toArray()[i]).getAsJsonObject();
+            
+            String name = clusterSize.get("name").getAsString();
+            BaseItem baseItem = BaseItem.getBaseItemFromName(name);
+            
+            JsonArray passive_skills = clusterSize.get("passive_skills").getAsJsonArray();
+            for (int j = 0; j < passive_skills.size(); j++) {
+                JsonObject afflictionObject = passive_skills.get(j).getAsJsonObject();
+                String afflictionName = afflictionObject.get("name").getAsString();
+                
+                Set<String> afflictionStatsObjects = afflictionObject.get("stats").getAsJsonObject().keySet();
+                String[] afflictionStats = new String[afflictionStatsObjects.size()];
+                afflictionStats = afflictionStatsObjects.toArray(afflictionStats);
+                
+                Affliction affliction = new Affliction(afflictionName, afflictionStats);
+                
+                baseItem.getAfflictions().add(affliction);
+            }
+        }
     }
     
     private static String contentFromTextFile(String endPath)

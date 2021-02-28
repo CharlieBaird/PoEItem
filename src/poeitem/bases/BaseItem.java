@@ -14,6 +14,7 @@ public class BaseItem {
     private String name;
     private Tag[] tags;
     private CraftGroup craftGroup;
+    private ArrayList<Affliction> afflictions;
 
     public BaseItem(String item_class, String name, Tag[] tags) {
         this.item_class = item_class;
@@ -30,6 +31,7 @@ public class BaseItem {
                 break;
             case "Cluster Jewel":
                 craftGroup = CraftGroup.CLUSTER_JEWEL;
+                afflictions = new ArrayList<>();
                 break;
             default:
                 craftGroup = CraftGroup.NORMAL;
@@ -52,6 +54,10 @@ public class BaseItem {
     public CraftGroup getCrafGroup() {
         return craftGroup;
     }
+
+    public ArrayList<Affliction> getAfflictions() {
+        return afflictions;
+    }
     
     public static BaseItem getBaseItemFromName(String name)
     {
@@ -73,6 +79,14 @@ public class BaseItem {
         for (Tag t : tags)
         {
             System.out.print(t.getTagName() + ", ");
+        }
+        if (this.getAfflictions() != null)
+        {
+            System.out.println("Afflictions:");
+            for (Affliction aff : this.getAfflictions())
+            {
+                aff.print();
+            }
         }
         System.out.println();
         System.out.println();
@@ -134,12 +148,12 @@ public class BaseItem {
         ArrayList<String> bases = new ArrayList<>();
         
         for (int i = 0; i < BaseItems.size(); i++) {
-//            BaseItems.get(i).print();
+            BaseItems.get(i).print();
 
             if (!bases.contains(BaseItems.get(i).item_class))
             {
                 bases.add(BaseItems.get(i).item_class);
-                System.out.println(BaseItems.get(i).item_class);
+//                System.out.println(BaseItems.get(i).item_class);
             }
 
         }
