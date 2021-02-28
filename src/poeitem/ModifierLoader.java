@@ -62,8 +62,14 @@ public class ModifierLoader {
                 continue;
             }
             
+            String type = mod.get("type").getAsString();
+            if (key.contains("Jewel") || type.contains("Jewel"))
+            {
+                continue;
+            }
+            
             String domain = mod.get("domain").getAsString();
-            if (domain.equals("atlas") || domain.equals("area") || domain.equals("crafted") || domain.equals("delve"))
+            if (domain.equals("atlas") || domain.equals("area") || domain.equals("crafted") || domain.equals("delve") || domain.equals("flask"))
             {
                 continue;
             }

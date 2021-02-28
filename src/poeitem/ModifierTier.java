@@ -36,7 +36,7 @@ public class ModifierTier implements Serializable, Comparable {
         if (index >= 0 && index < Modifier.AllExplicitModifiers.size())
         {
             this.parentModifier = Modifier.AllExplicitModifiers.get(index);
-            parentModifier.getSubModifiers().add(this);
+            parentModifier.getModifierTiers().add(this);
         }
         else
         {
@@ -160,8 +160,6 @@ public class ModifierTier implements Serializable, Comparable {
     
     public void print()
     {
-        if (!this.isApplicable(ItemClass.getFromItemClassName("Boots"))) return;
-        
         System.out.println(name + ": iLvl " + required_level);
         for (Stat stat : ids)
         {

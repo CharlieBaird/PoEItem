@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import poeitem.StatTranslations.StatTranslation;
+import poeitem.bases.BaseItem;
+import poeitem.bases.ItemClass;
 
 public class Modifier{
     
@@ -14,8 +16,14 @@ public class Modifier{
 
     public Modifier(String key, ModifierTier subModifier) {
         this.key = key;
-        this.modifierTiers = new ArrayList<ModifierTier>();
+        this.modifierTiers = new ArrayList<>();
         this.modifierTiers.add(subModifier);
+    }
+    
+    private Modifier(ArrayList<ModifierTier> modifierTiers)
+    {
+        this.key = modifierTiers.get(0).getKey();
+        this.modifierTiers = modifierTiers;
     }
     
     public Modifier(String key) {
@@ -26,7 +34,7 @@ public class Modifier{
         return key;
     }
 
-    public ArrayList<ModifierTier> getSubModifiers() {
+    public ArrayList<ModifierTier> getModifierTiers() {
         return modifierTiers;
     }
     
@@ -49,10 +57,39 @@ public class Modifier{
     private void sortTiers()
     {
         Collections.sort(this.modifierTiers, ModifierTier.comparatorSortByKey);
-        
     }
     
+    public static ArrayList<Modifier> getAllApplicableModifiers(ItemClass itemClass)
+    {
+        return getAllApplicableModifiers(itemClass.getBases().get(0));
+    }
     
+    public static ArrayList<Modifier> getAllApplicableModifiers(BaseItem baseItem)
+    {
+        ArrayList<Modifier> modifiers = new ArrayList<>();
+        
+        for (Modifier modifier : AllExplicitModifiers)
+        {
+            ArrayList<ModifierTier> modifierTiers = new ArrayList<>();
+            for (ModifierTier modifierTier : modifier.getModifierTiers())
+            {
+                if (modifierTier.isApplicable(baseItem))
+                {
+                    modifierTiers.add(modifierTier);
+                }
+            }
+            
+            if (modifierTiers.isEmpty())
+            {
+                continue;
+            }
+            Modifier mod = new Modifier(modifierTiers);
+            mod.print();
+            modifiers.add(mod);
+        }
+        
+        return modifiers;
+    }
     
     public void print()
     {
