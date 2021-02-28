@@ -40,7 +40,7 @@ public class ModifierLoader {
         // Load baseitems from json
         String base_itemsString = getJson("base_items.min");
         JsonObject base_items = parser.parse(base_itemsString).getAsJsonObject();
-        new BaseItems().parse(base_items);
+        BaseItem.parse(base_items);
         
         // Load translations from json
         String stat_translationsString = getJson("stat_translations.min");
@@ -119,6 +119,7 @@ public class ModifierLoader {
             int required_level = mod.get("required_level").getAsInt(); // Sets item level
             Affix affix_type = generation_type.equals("prefix") ? Affix.PREFIX : Affix.SUFFIX; // Only possible remaining generation_types are prefix / suffix
             
+            // Parse weightings, where the mod can spawn
             Weight[] weights = new Weight[spawn_weights.size()];
             for (int i=0; i<spawn_weights.size(); i++)
             {
@@ -127,15 +128,10 @@ public class ModifierLoader {
                 weights[i] = w;
             }
             
-            ModifierTier subModifier = new ModifierTier(key, modGroup, statTranslations, name, required_level, affix_type, ids, weights);
+            ModifierTier modifierTier = new ModifierTier(key, modGroup, statTranslations, name, required_level, affix_type, ids, weights);
         }
         
         Modifier.setAllTiers();
-        
-//        for (Modifier m : Modifier.AllExplicitModifiers)
-//        {
-//            m.print();
-//        }
     }
     
     private static String contentFromTextFile(String endPath)
