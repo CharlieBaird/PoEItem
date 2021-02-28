@@ -1,5 +1,6 @@
 package poeitem;
 
+import poeitem.bases.BaseItem;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,6 +8,7 @@ import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import poeitem.StatTranslations.StatTranslation;
+import poeitem.bases.ItemClass;
 
 public class ModifierTier implements Serializable, Comparable {
 
@@ -74,6 +76,10 @@ public class ModifierTier implements Serializable, Comparable {
         return ids;
     }
 
+    public Weight[] getWeights() {
+        return weights;
+    }
+
     @Override
     public int compareTo(Object o) {
         ModifierTier that = (ModifierTier) o;
@@ -110,8 +116,52 @@ public class ModifierTier implements Serializable, Comparable {
         PREFIX, SUFFIX
     }
     
+    public boolean isApplicable(ItemClass itemClass)
+    {
+        return isApplicable(itemClass.getBases().get(0));
+    }
+    
+    public boolean isApplicable(BaseItem base)
+    {
+        Tag[] tagsOnBase = base.getTags();
+        Weight[] modTags = this.getWeights();
+        
+        boolean overrideDefault = false;
+        
+        for (int i = 0; i < tagsOnBase.length; i++) {
+            Tag tag = tagsOnBase[i];
+            
+            for (int j = 0; j < modTags.length; j++) {
+                Weight modWeight = modTags[j];
+                Tag modTag = modWeight.getTag();
+                
+                if (tag == modTag)
+                {
+                    if (tag == Tag._default && modWeight.getWeight() == 0)
+                    {
+                        if (!overrideDefault) return false;
+                    }
+                    
+                    else if (modWeight.getWeight() == 0)
+                    {
+                        return false;
+                    }
+                    
+                    else if (modWeight.getWeight() > 0)
+                    {
+                        overrideDefault = true;
+                    }
+                }
+            }
+        }
+        
+        return true;
+    }
+    
     public void print()
     {
+        if (!this.isApplicable(ItemClass.getFromItemClassName("Boots"))) return;
+        
         System.out.println(name + ": iLvl " + required_level);
         for (Stat stat : ids)
         {

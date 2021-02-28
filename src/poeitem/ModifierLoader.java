@@ -1,5 +1,6 @@
 package poeitem;
 
+import poeitem.bases.BaseItem;
 import com.google.gson.*;
 import java.io.*; 
 import java.util.Set;

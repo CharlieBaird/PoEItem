@@ -1,9 +1,10 @@
-package poeitem;
+package poeitem.bases;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.Set;
+import poeitem.Tag;
 
 public class BaseItem {
 
@@ -46,6 +47,7 @@ public class BaseItem {
     public static void parse(JsonObject base_items) {
         BaseItems = new ArrayList<>();
         Set<String> modKeys = base_items.keySet();
+        ItemClass.ItemClasses = new ArrayList<>();
         for (String key : modKeys)
         {
             JsonObject base_item = base_items.get(key).getAsJsonObject();
@@ -67,14 +69,34 @@ public class BaseItem {
             }
             
             BaseItem baseItem = new BaseItem(item_class, name, tags);
+            ItemClass itemClass = ItemClass.getFromItemClassName(item_class);
+            if (itemClass != null)
+            {
+                itemClass.addBase(baseItem);
+            }
+            else
+            {
+                itemClass = new ItemClass(item_class);
+                itemClass.addBase(baseItem);
+            }
             BaseItems.add(baseItem);
         }
     }
     
     public static void printAll()
     {
+        
+        ArrayList<String> bases = new ArrayList<>();
+        
         for (int i = 0; i < BaseItems.size(); i++) {
-            BaseItems.get(i).print();
+//            BaseItems.get(i).print();
+
+            if (!bases.contains(BaseItems.get(i).item_class))
+            {
+                bases.add(BaseItems.get(i).item_class);
+                System.out.println(BaseItems.get(i).item_class);
+            }
+
         }
     }
 }
