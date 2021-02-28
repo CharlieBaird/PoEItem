@@ -599,7 +599,7 @@ public enum Tag {
     _affliction_physical_damage_over_time_multiplier("affliction_physical_damage_over_time_multiplier"),
     _affliction_cold_damage_over_time_multiplier("affliction_cold_damage_over_time_multiplier"),
     _affliction_damage_over_time_multiplier("affliction_damage_over_time_multiplier"),
-    _affliction_effect_of_non__damaging_ailments("affliction_effect_of_non__damaging_ailments"),
+    _affliction_effect_of_non__damaging_ailments("affliction_effect_of_non-damaging_ailments"),
     _affliction_aura_effect("affliction_aura_effect"),
     _affliction_curse_effect("affliction_curse_effect"),
     _affliction_damage_while_you_have_a_herald("affliction_damage_while_you_have_a_herald"),

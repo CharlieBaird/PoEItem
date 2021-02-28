@@ -12,7 +12,7 @@ import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import poeitem.Id;
-import poeitem.Modifier.Affix;
+import poeitem.ModifierTier.Affix;
 import poeitem.StatTranslations.StatTranslation;
 
 public class ModifierLoader {
@@ -109,19 +109,25 @@ public class ModifierLoader {
                 int index = Collections.binarySearch(StatTranslations.Ids, id, Id.comparator);
                 StatTranslation statTranslation = StatTranslations.Ids.get(index).parent;
                 statTranslations[i] = statTranslation;
-                System.out.println(mod.get("name").getAsString());
-                statTranslation.print();
-                ids[i].print();
-                System.out.println();
             }
-            System.out.println("--------------------------------------------------------------------");
 
             // Key, modGroup, statTranslations, name, required_level, affix_type, ids
-            String modGroup = key.replaceAll("[\\d_]", "");
+            String modGroup = key.replaceAll("[_]", "");
+            modGroup = modGroup.replaceAll("[\\d]*$", "");
+
             String name = mod.get("name").getAsString(); // Name of the mod. Example: "Athlete's"
             int required_level = mod.get("required_level").getAsInt(); // Sets item level
             Affix affix_type = generation_type.equals("prefix") ? Affix.PREFIX : Affix.SUFFIX; // Only possible remaining generation_types are prefix / suffix
+            
+            ModifierTier subModifier = new ModifierTier(key, modGroup, statTranslations, name, required_level, affix_type, ids);
         }
+        
+        Modifier.setAllTiers();
+        
+//        for (Modifier m : Modifier.AllExplicitModifiers)
+//        {
+//            m.print();
+//        }
     }
     
     private static String contentFromTextFile(String endPath)
