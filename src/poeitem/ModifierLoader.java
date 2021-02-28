@@ -8,9 +8,12 @@ import java.util.logging.Logger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import poeitem.Modifier.Type;
+import poeitem.Id;
+import poeitem.StatTranslations.StatTranslation;
 
 public class ModifierLoader {
     
@@ -29,92 +32,92 @@ public class ModifierLoader {
     
     private void loadModifiersFromJson()
     {
-        String mods = getJson("mods.min");
-        String cluster_jewel_notables = getJson("cluster_jewel_notables.min");
-        String cluster_jewels = getJson("cluster_jewels.min");
-        String stat_translations = getJson("stat_translations.min");
-        String stats = getJson("stats.min");
-        
-        System.out.println(cluster_jewel_notables);
-
         JsonParser parser = new JsonParser();
-
-//        for (int i=0; i<json.length; i++)
+        
+        String modsString = getJson("mods.min");
+        JsonObject mods = parser.parse(modsString).getAsJsonObject();
+        
+        String stat_translationsString = getJson("stat_translations.min");
+        JsonArray stat_translations = parser.parse(stat_translationsString).getAsJsonArray();
+        new StatTranslations().load(stat_translations);
+//        for (StatTranslation t : StatTranslations.StatTranslations)
 //        {
-//            String string = json[i];
-//            String baseName = lines[i];
-//            
-//            JsonObject object = parser.parse(string).getAsJsonObject();
-//            
-//            String[] influences = new String[] {"normal", "elder", "shaper", "crusader", "redeemer", "hunter", "warlord"};
-//            
-//            int index = 0;
-//            boolean isInfluenced = false;
-//            for (String influence : influences)
-//            {
-//                if (index++ >= 1) isInfluenced = true;
-//                    
-//                JsonElement normalElement = object.get(influence);
-//            
-//                Modifier m = null;
-//
-//                if (normalElement.isJsonArray())
-//                {
-//                    JsonArray normal = normalElement.getAsJsonArray();
-//                    for (int j=0; j<normal.size(); j++)
-//                    {
-//                        JsonObject obj = normal.get(j).getAsJsonObject();
-//
-//                        String ModGenerationTypeID = obj.get("ModGenerationTypeID").getAsString();
-//                        String str = obj.get("str").getAsString();
-//                        int itemLevel = Integer.valueOf(obj.get("Level").getAsString());
-//                        
-//                        String tierName = null;
-//                        try {
-//                             tierName = obj.get("Name").getAsString();
-//                        } catch (UnsupportedOperationException ex) {
-//                            // No name associated
-//                        }
-//                        
-//                        if (tierName != null) {
-//                            m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT, tierName, baseName, itemLevel, isInfluenced);
-//                        }
-//                        else {
-//                            m = new Modifier(false, ModGenerationTypeID, "Modifier", str, Type.EXPLICIT, true);
-//                        }
-//                    }
-//                }
-//                else if (normalElement.isJsonObject())
-//                {
-//                    JsonObject normal = normalElement.getAsJsonObject();
-//                    Set<String> keysSet = normal.keySet();
-//                    for (String s : keysSet)
-//                    {
-//                        JsonObject obj = normal.get(s).getAsJsonObject();
-//
-//                        String ModGenerationTypeID = obj.get("ModGenerationTypeID").getAsString();
-//                        String str = obj.get("str").getAsString();
-//                        int itemLevel = Integer.valueOf(obj.get("Level").getAsString());
-//                        
-//                        if (str != null && (str.equals("1 Added Passive Skill is a Jewel Socket") || str.equals("<span class='mod-value'>2</span> Added Passive Skills are Jewel Sockets"))) continue;
-//
-//                        String tierName = null;
-//                        try {
-//                             tierName = obj.get("Name").getAsString();
-//                        } catch (UnsupportedOperationException ex) {
-//                            // No name associated
-//                        }
-//                        
-//                        if (tierName != null) {
-//                            m = new Modifier(ModGenerationTypeID, "Modifier", str, Type.EXPLICIT, tierName, baseName, itemLevel, isInfluenced);
-//                        }
-//                        else {
-//                            m = new Modifier(false, ModGenerationTypeID, "Modifier", str, Type.EXPLICIT, true);
-//                        }
-//                    }
-//                }
-//            }
+//            t.print();
 //        }
+//        for (Id id : StatTranslations.Ids)
+//        {
+//            id.print();
+//        }
+        
+        Set<String> modKeys = mods.keySet();
+        for (String key : modKeys)
+        {
+            
+            JsonObject mod = mods.getAsJsonObject(key);
+            
+            // Weed out the weird mods: enchants, atlas, uniques mods, corrupted implicits, essence mods
+            
+            String generation_type = mod.get("generation_type").getAsString();
+            if (generation_type.equals("unique") || generation_type.equals("corrupted") || generation_type.equals("enchantment"))
+            {
+                continue;
+            }
+            
+            String domain = mod.get("domain").getAsString();
+            if (domain.equals("atlas") || domain.equals("area") || domain.equals("crafted") || domain.equals("delve"))
+            {
+                continue;
+            }
+            if (domain.equals("misc") && !(generation_type.equals("prefix") || generation_type.equals("suffix")))
+            {
+                continue;
+            }
+            
+            boolean is_essence_only = mod.get("is_essence_only").getAsBoolean();
+            if (is_essence_only)
+            {
+                continue;
+            }
+            
+            // check if all weightings are 0: the mod is disabled and cannot spawn
+            
+            JsonArray spawn_weights = mod.get("spawn_weights").getAsJsonArray();
+            boolean passed = false;
+            for (int i=0; i<spawn_weights.size(); i++)
+            {
+                int weight = spawn_weights.get(i).getAsJsonObject().get("weight").getAsInt();
+                if (weight != 0)
+                {
+                    passed = true;
+                }
+            }
+            if (!passed)
+            {
+                continue;
+            }
+                
+            
+            // get stat ids string
+            
+            JsonArray stats = mod.getAsJsonArray("stats");
+            if (stats.size() >= 1)
+            {
+                String[] ids = new String[stats.size()];
+                for (int i=0; i<stats.size(); i++)
+                {
+                    JsonObject stat = stats.get(i).getAsJsonObject();
+                    ids[i] = stat.get("id").getAsString();
+                    
+                    
+                }
+                
+                Id id = new Id(ids[0]);
+                    
+                int index = Collections.binarySearch(StatTranslations.Ids, id, Id.comparator);
+
+                StatTranslation statTranslation = StatTranslations.Ids.get(index).parent;
+            }
+        }
     }
     
     private static String contentFromTextFile(String endPath)
