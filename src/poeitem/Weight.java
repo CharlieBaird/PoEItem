@@ -1,0 +1,28 @@
+package poeitem;
+
+public class Weight {
+    
+    private final Tag tag;
+    private final int weight;
+    private final boolean canSpawn;
+
+    public Weight(Tag tag, int weight) {
+        this.tag = tag;
+        this.weight = weight;
+        
+        canSpawn = weight > 0;
+    }
+
+    public Tag getTag() {
+        return tag;
+    }
+
+    public int getWeight() {
+        return weight;
+    }
+
+    public boolean canSpawn() {
+        return canSpawn;
+    }
+    
+}

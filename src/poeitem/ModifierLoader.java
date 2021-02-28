@@ -119,7 +119,15 @@ public class ModifierLoader {
             int required_level = mod.get("required_level").getAsInt(); // Sets item level
             Affix affix_type = generation_type.equals("prefix") ? Affix.PREFIX : Affix.SUFFIX; // Only possible remaining generation_types are prefix / suffix
             
-            ModifierTier subModifier = new ModifierTier(key, modGroup, statTranslations, name, required_level, affix_type, ids);
+            Weight[] weights = new Weight[spawn_weights.size()];
+            for (int i=0; i<spawn_weights.size(); i++)
+            {
+                JsonObject weight = spawn_weights.get(i).getAsJsonObject();
+                Weight w = new Weight(Tag.getTypeFromTagName(weight.get("tag").getAsString()), weight.get("weight").getAsInt());
+                weights[i] = w;
+            }
+            
+            ModifierTier subModifier = new ModifierTier(key, modGroup, statTranslations, name, required_level, affix_type, ids, weights);
         }
         
         Modifier.setAllTiers();

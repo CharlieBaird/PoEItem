@@ -3,6 +3,7 @@ package poeitem;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import poeitem.StatTranslations.StatTranslation;
 
 public class Modifier{
     
@@ -41,19 +42,14 @@ public class Modifier{
     {
         for (Modifier modifier : AllExplicitModifiers)
         {
-            modifier.setTiers();
+            modifier.sortTiers();
         }
     }
     
-    private void setTiers()
+    private void sortTiers()
     {
         Collections.sort(this.modifierTiers, ModifierTier.comparatorSortByKey);
         
-        for (int i=0; i<this.modifierTiers.size(); i++)
-        {
-            ModifierTier tier = modifierTiers.get(i);
-            tier.setTier(this.modifierTiers.size() - i);
-        }
     }
     
     
@@ -61,6 +57,11 @@ public class Modifier{
     public void print()
     {
         System.out.println(key);
+        for (StatTranslation stat : modifierTiers.get(0).getStatTranslations())
+        {
+            stat.print();
+        }
+        System.out.println();
         for (ModifierTier sub : modifierTiers)
         {
             sub.print();

@@ -18,9 +18,9 @@ public class ModifierTier implements Serializable, Comparable {
     private int required_level;
     private Affix affix_type;
     private Stat[] ids;
-    private int tier = 1;
+    private Weight[] weights;
 
-    public ModifierTier(String key, String modGroup, StatTranslation[] statTranslations, String name, int required_level, Affix affix_type, Stat[] ids) {
+    public ModifierTier(String key, String modGroup, StatTranslation[] statTranslations, String name, int required_level, Affix affix_type, Stat[] ids, Weight[] weights) {
         this.key = key;
         this.modGroup = modGroup;
         this.statTranslations = statTranslations;
@@ -28,6 +28,7 @@ public class ModifierTier implements Serializable, Comparable {
         this.required_level = required_level;
         this.affix_type = affix_type;
         this.ids = ids;
+        this.weights = weights;
         
         int index = Collections.binarySearch(Modifier.AllExplicitModifiers, new Modifier(modGroup), Modifier.binarySearchComparator);
         if (index >= 0 && index < Modifier.AllExplicitModifiers.size())
@@ -73,14 +74,6 @@ public class ModifierTier implements Serializable, Comparable {
         return ids;
     }
 
-    public int getTier() {
-        return tier;
-    }
-
-    public void setTier(int tier) {
-        this.tier = tier;
-    }
-
     @Override
     public int compareTo(Object o) {
         ModifierTier that = (ModifierTier) o;
@@ -119,7 +112,7 @@ public class ModifierTier implements Serializable, Comparable {
     
     public void print()
     {
-        System.out.println("T" + tier + " " + name + ": iLvl " + required_level);
+        System.out.println(name + ": iLvl " + required_level);
         for (Stat stat : ids)
         {
             stat.print();
