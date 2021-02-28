@@ -24,13 +24,11 @@ public class StatTranslations {
             for (int j=0; j<english.size(); j++)
             {
                 JsonArray format = english.get(j).getAsJsonObject().get("format").getAsJsonArray();
-                statTranslation.formats = new String[format.size()];
+                String string = english.get(j).getAsJsonObject().get("string").getAsString();
                 for (int k=0; k<format.size(); k++)
                 {
-                    statTranslation.formats[k] = format.get(k).getAsString();
+                    string = string.replaceFirst("\\{\\d\\}", format.get(k).getAsString());
                 }
-                
-                String string = english.get(j).getAsJsonObject().get("string").getAsString();
                 statTranslation.strings.add(string);
             }
             
@@ -52,7 +50,6 @@ public class StatTranslations {
     {
         
         ArrayList<String> strings;
-        String[] formats;
         Id[] ids;
                 
         public StatTranslation()
@@ -63,10 +60,6 @@ public class StatTranslations {
         public void print()
         {
             for (String str : strings)
-            {
-                System.out.println(str);
-            }
-            for (String str : formats)
             {
                 System.out.println(str);
             }

@@ -11,8 +11,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import poeitem.Modifier.Type;
 import poeitem.Id;
+import poeitem.Modifier.Affix;
 import poeitem.StatTranslations.StatTranslation;
 
 public class ModifierLoader {
@@ -37,17 +37,15 @@ public class ModifierLoader {
         String modsString = getJson("mods.min");
         JsonObject mods = parser.parse(modsString).getAsJsonObject();
         
+        // Load baseitems from json
+        String base_itemsString = getJson("base_items.min");
+        JsonObject base_items = parser.parse(base_itemsString).getAsJsonObject();
+        new BaseItems().parse(base_items);
+        
+        // Load translations from json
         String stat_translationsString = getJson("stat_translations.min");
         JsonArray stat_translations = parser.parse(stat_translationsString).getAsJsonArray();
         new StatTranslations().load(stat_translations);
-//        for (StatTranslation t : StatTranslations.StatTranslations)
-//        {
-//            t.print();
-//        }
-//        for (Id id : StatTranslations.Ids)
-//        {
-//            id.print();
-//        }
         
         Set<String> modKeys = mods.keySet();
         for (String key : modKeys)
@@ -100,23 +98,29 @@ public class ModifierLoader {
             // get stat ids string
             
             JsonArray stats = mod.getAsJsonArray("stats");
-            if (stats.size() >= 1)
+            Stat[] ids = new Stat[stats.size()];
+            StatTranslation[] statTranslations = new StatTranslation[stats.size()];
+            for (int i=0; i<stats.size(); i++)
             {
-                String[] ids = new String[stats.size()];
-                for (int i=0; i<stats.size(); i++)
-                {
-                    JsonObject stat = stats.get(i).getAsJsonObject();
-                    ids[i] = stat.get("id").getAsString();
-                    
-                    
-                }
-                
-                Id id = new Id(ids[0]);
-                    
-                int index = Collections.binarySearch(StatTranslations.Ids, id, Id.comparator);
+                JsonObject stat = stats.get(i).getAsJsonObject();
+                ids[i] = new Stat(stat.get("id").getAsString(), stat.get("min").getAsDouble(), stat.get("max").getAsDouble());
 
+                Id id = new Id(ids[i].getId()); // ids always has size >= 1
+                int index = Collections.binarySearch(StatTranslations.Ids, id, Id.comparator);
                 StatTranslation statTranslation = StatTranslations.Ids.get(index).parent;
+                statTranslations[i] = statTranslation;
+                System.out.println(mod.get("name").getAsString());
+                statTranslation.print();
+                ids[i].print();
+                System.out.println();
             }
+            System.out.println("--------------------------------------------------------------------");
+
+            // Key, modGroup, statTranslations, name, required_level, affix_type, ids
+            String modGroup = key.replaceAll("[\\d_]", "");
+            String name = mod.get("name").getAsString(); // Name of the mod. Example: "Athlete's"
+            int required_level = mod.get("required_level").getAsInt(); // Sets item level
+            Affix affix_type = generation_type.equals("prefix") ? Affix.PREFIX : Affix.SUFFIX; // Only possible remaining generation_types are prefix / suffix
         }
     }
     
