@@ -4,28 +4,24 @@ public class Affliction
 {
     
     private String name;
-    private String[] stats;
+    private String id;
 
-    public Affliction(String name, String[] stats) {
+    public Affliction(String name, String id) {
         this.name = name;
-        this.stats = stats;
+        this.id = id;
     }
 
     public String getName() {
         return name;
     }
 
-    public String[] getStats() {
-        return stats;
+    public String getId() {
+        return id;
     }
     
     public void print()
     {
-        System.out.println(name);
-        for (String s : stats)
-        {
-            System.out.println(s);
-        }
+        System.out.println(name + ": " + id);
     }
     
 }

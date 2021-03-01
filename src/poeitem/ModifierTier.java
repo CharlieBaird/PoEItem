@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import poeitem.StatTranslations.StatTranslation;
+import poeitem.bases.Affliction;
 import poeitem.bases.CraftGroup;
 import poeitem.bases.ItemClass;
 
@@ -124,26 +125,25 @@ public class ModifierTier implements Serializable, Comparable {
         PREFIX, SUFFIX
     }
     
-    public boolean isApplicable(ItemClass itemClass)
+    public boolean isApplicable(BaseItem base, ArrayList<Tag> tagsOnBase)
     {
-        return isApplicable(itemClass.getBases().get(0));
-    }
-    
-    public boolean isApplicable(BaseItem base)
-    {
-        Tag[] tagsOnBase = base.getTags();
         Weight[] modTags = this.getWeights();
         
         boolean overrideDefault = false;
         
         // XNOR Gate to check if either both the base and the mod are jewel based or both are not jewel based
-        if (this.craftGroup != base.getCrafGroup())
+        if (this.craftGroup != base.getCraftGroup())
         {
             return false;
         }
         
-        for (int i = 0; i < tagsOnBase.length; i++) {
-            Tag tag = tagsOnBase[i];
+        if (this.getName().equals("Notable"))
+        {
+            System.out.println();
+        }
+        
+        for (int i = 0; i < tagsOnBase.size(); i++) {
+            Tag tag = tagsOnBase.get(i);
             
             for (int j = 0; j < modTags.length; j++) {
                 Weight modWeight = modTags[j];

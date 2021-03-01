@@ -82,7 +82,7 @@ public class ModifierLoader {
             
             String type = mod.get("type").getAsString();
             CraftGroup craftGroup = CraftGroup.NORMAL;
-            if (key.contains("Jewel") || type.contains("Jewel"))
+            if (key.contains("Jewel") || type.contains("Jewel") || type.contains("AfflictionNotable"))
             {
                 if (domain.equals("abyss_jewel"))
                 {
@@ -143,6 +143,8 @@ public class ModifierLoader {
             modGroup = modGroup.replaceAll("[\\d]*$", "");
 
             String name = mod.get("name").getAsString(); // Name of the mod. Example: "Athlete's"
+            
+            
             int required_level = mod.get("required_level").getAsInt(); // Sets item level
             Affix affix_type = generation_type.equals("prefix") ? Affix.PREFIX : Affix.SUFFIX; // Only possible remaining generation_types are prefix / suffix
             
@@ -172,13 +174,11 @@ public class ModifierLoader {
             JsonArray passive_skills = clusterSize.get("passive_skills").getAsJsonArray();
             for (int j = 0; j < passive_skills.size(); j++) {
                 JsonObject afflictionObject = passive_skills.get(j).getAsJsonObject();
+                
                 String afflictionName = afflictionObject.get("name").getAsString();
+                String afflictionId = afflictionObject.get("id").getAsString();
                 
-                Set<String> afflictionStatsObjects = afflictionObject.get("stats").getAsJsonObject().keySet();
-                String[] afflictionStats = new String[afflictionStatsObjects.size()];
-                afflictionStats = afflictionStatsObjects.toArray(afflictionStats);
-                
-                Affliction affliction = new Affliction(afflictionName, afflictionStats);
+                Affliction affliction = new Affliction(afflictionName, afflictionId);
                 
                 baseItem.getAfflictions().add(affliction);
             }

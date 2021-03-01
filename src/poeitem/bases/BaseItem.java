@@ -12,11 +12,11 @@ public class BaseItem {
     
     private String item_class;
     private String name;
-    private Tag[] tags;
+    private ArrayList<Tag> tags;
     private CraftGroup craftGroup;
     private ArrayList<Affliction> afflictions;
 
-    public BaseItem(String item_class, String name, Tag[] tags) {
+    public BaseItem(String item_class, String name, ArrayList<Tag> tags) {
         this.item_class = item_class;
         this.name = name;
         this.tags = tags;
@@ -47,11 +47,11 @@ public class BaseItem {
         return name;
     }
 
-    public Tag[] getTags() {
+    public ArrayList<Tag> getTags() {
         return tags;
     }
     
-    public CraftGroup getCrafGroup() {
+    public CraftGroup getCraftGroup() {
         return craftGroup;
     }
 
@@ -121,10 +121,10 @@ public class BaseItem {
             String name = base_item.get("name").getAsString();
             
             JsonArray tagsJson = base_item.get("tags").getAsJsonArray();
-            Tag[] tags = new Tag[tagsJson.size()];
+            ArrayList<Tag> tags = new ArrayList<>();
             for (int i=0; i<tagsJson.size(); i++)
             {
-                tags[i] = Tag.getTypeFromTagName(tagsJson.get(i).getAsString());
+                tags.add(Tag.getTypeFromTagName(tagsJson.get(i).getAsString()));
             }
             
             BaseItem baseItem = new BaseItem(item_class, name, tags);

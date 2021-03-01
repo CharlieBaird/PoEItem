@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import poeitem.StatTranslations.StatTranslation;
+import poeitem.bases.Affliction;
 import poeitem.bases.BaseItem;
 import poeitem.bases.ItemClass;
 
@@ -63,12 +64,29 @@ public class Modifier{
     {
         ArrayList<Modifier> modifiers = new ArrayList<>();
         
+        ArrayList<Tag> tagsOnBase = baseItem.getTags();
+        
+        if (baseItem.getAfflictions() != null)
+        {
+            for (Affliction aff : baseItem.getAfflictions())
+            {
+                tagsOnBase.add(Tag.getTypeFromTagName(aff.getId()));
+            }
+        }
+        
+        // Swap default to end of arraylist
+        if (tagsOnBase.contains(Tag._default))
+        {
+            tagsOnBase.remove(Tag._default);
+            tagsOnBase.add(Tag._default);
+        }
+        
         for (Modifier modifier : AllExplicitModifiers)
         {
             ArrayList<ModifierTier> modifierTiers = new ArrayList<>();
             for (ModifierTier modifierTier : modifier.getModifierTiers())
             {
-                if (modifierTier.isApplicable(baseItem))
+                if (modifierTier.isApplicable(baseItem, tagsOnBase))
                 {
                     modifierTiers.add(modifierTier);
                 }
