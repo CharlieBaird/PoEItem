@@ -6,7 +6,6 @@ import java.util.Comparator;
 import poeitem.StatTranslations.StatTranslation;
 import poeitem.bases.Affliction;
 import poeitem.bases.BaseItem;
-import poeitem.bases.ItemClass;
 
 public class Modifier{
     

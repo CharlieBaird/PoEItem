@@ -1,6 +1,5 @@
 package poeitem.bases;
 
-import poeitem.bases.BaseItem;
 import java.util.ArrayList;
 
 public class ItemClass {

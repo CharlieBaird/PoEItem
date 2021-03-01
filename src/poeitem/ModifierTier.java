@@ -8,9 +8,7 @@ import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import poeitem.StatTranslations.StatTranslation;
-import poeitem.bases.Affliction;
 import poeitem.bases.CraftGroup;
-import poeitem.bases.ItemClass;
 
 public class ModifierTier implements Serializable, Comparable {
 
