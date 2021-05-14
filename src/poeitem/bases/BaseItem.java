@@ -2,11 +2,12 @@ package poeitem.bases;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Set;
 import poeitem.Tag;
 
-public class BaseItem {
+public class BaseItem implements Serializable {
 
     public static ArrayList<BaseItem> BaseItems;
     

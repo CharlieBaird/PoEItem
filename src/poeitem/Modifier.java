@@ -62,7 +62,6 @@ public class Modifier{
     public static ArrayList<Modifier> getAllApplicableModifiers(BaseItem baseItem)
     {
         ArrayList<Modifier> modifiers = new ArrayList<>();
-        
         ArrayList<Tag> tagsOnBase = baseItem.getTags();
         
         if (baseItem.getAfflictions() != null)
