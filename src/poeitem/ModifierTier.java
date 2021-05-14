@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import poeitem.StatTranslations.StatTranslation;
 import poeitem.bases.CraftGroup;
+import poeitem.bases.Influence;
 
 public class ModifierTier implements Serializable, Comparable {
 
@@ -22,7 +23,7 @@ public class ModifierTier implements Serializable, Comparable {
     private Stat[] ids;
     private Weight[] weights;
     private CraftGroup craftGroup;
-    private String type;
+    private Influence influence;
 
     public ModifierTier(String key, String modGroup, StatTranslation[] statTranslations, String name, 
             int required_level, Affix affix_type, Stat[] ids, Weight[] weights, CraftGroup craftGroup) {
@@ -46,6 +47,30 @@ public class ModifierTier implements Serializable, Comparable {
         {
             this.parentModifier = new Modifier(modGroup, this);
             Modifier.AllExplicitModifiers.add(parentModifier);
+        }
+        
+        switch (name)
+        {
+            case "of Shaping":
+            case "The Shapers's":
+                this.influence = Influence.SHAPER;
+            case "Eldritch":
+            case "of the Elder":
+                this.influence = Influence.ELDER;
+            case "Crusader's":
+            case "of the Crusade":
+                this.influence = Influence.CRUSADER;
+            case "Redeemer's":
+            case "of the Redeemer":
+                this.influence = Influence.REDEEMER;
+            case "Hunter's":
+            case "of the Hunt":
+                this.influence = Influence.HUNTER;
+            case "Warlord's":
+            case "of the Conquest":
+                this.influence = Influence.WARLORD;
+            default:
+                this.influence = Influence.NORMAL;
         }
         
         Collections.sort(Modifier.AllExplicitModifiers, Modifier.binarySearchComparator);
@@ -86,6 +111,10 @@ public class ModifierTier implements Serializable, Comparable {
 
     public CraftGroup getCraftGroup() {
         return craftGroup;
+    }
+
+    public Influence getInfluence() {
+        return influence;
     }
 
     @Override

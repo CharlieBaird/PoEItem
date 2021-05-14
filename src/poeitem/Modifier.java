@@ -6,6 +6,7 @@ import java.util.Comparator;
 import poeitem.StatTranslations.StatTranslation;
 import poeitem.bases.Affliction;
 import poeitem.bases.BaseItem;
+import poeitem.bases.Influence;
 
 public class Modifier{
     
@@ -57,6 +58,16 @@ public class Modifier{
     private void sortTiers()
     {
         Collections.sort(this.modifierTiers, ModifierTier.comparatorSortByKey);
+    }
+    
+    public boolean isInfluenced()
+    {
+        return this.getModifierTiers().get(0).getInfluence() != Influence.NORMAL;
+    }
+    
+    public Influence getInfluence()
+    {
+        return this.getModifierTiers().get(0).getInfluence();
     }
     
     public static ArrayList<Modifier> getAllApplicableModifiers(BaseItem baseItem)
