@@ -115,4 +115,18 @@ public class Modifier{
         }
         System.out.println("------------------------------------------------------------------");
     }
+    
+    private String getFriendlyString()
+    {
+        StatTranslation[] translations = this.getModifierTiers().get(0).getStatTranslations();
+        return translations[0].strings.get(0);
+        
+        
+    }
+    
+    @Override
+    public String toString()
+    {
+        return this.getFriendlyString();
+    }
 }

@@ -22,6 +22,7 @@ public class ModifierTier implements Serializable, Comparable {
     private Stat[] ids;
     private Weight[] weights;
     private CraftGroup craftGroup;
+    private String type;
 
     public ModifierTier(String key, String modGroup, StatTranslation[] statTranslations, String name, 
             int required_level, Affix affix_type, Stat[] ids, Weight[] weights, CraftGroup craftGroup) {
