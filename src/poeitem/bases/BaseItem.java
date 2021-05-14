@@ -140,6 +140,7 @@ public class BaseItem {
             }
             BaseItems.add(baseItem);
         }
+        
     }
     
     public static void printAll()
@@ -157,5 +158,11 @@ public class BaseItem {
             }
 
         }
+    }
+    
+    @Override
+    public String toString()
+    {
+        return this.getName();
     }
 }

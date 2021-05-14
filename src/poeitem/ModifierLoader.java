@@ -154,8 +154,6 @@ public class ModifierLoader {
             ModifierTier modifierTier = new ModifierTier(key, modGroup, statTranslations, name, required_level, affix_type, ids, weights, craftGroup);
         }
         
-        Modifier.setAllTiers();
-        
         // Loading almost done. Adding afflictions to Large/Medium/Small cluster jewels (enchantments)
         
         for (int i=0; i<cluster_jewels.keySet().size(); i++)
@@ -177,6 +175,9 @@ public class ModifierLoader {
                 baseItem.getAfflictions().add(affliction);
             }
         }
+        
+        Modifier.setAllTiers();
+
     }
     
     private static String contentFromTextFile(String endPath)
