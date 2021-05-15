@@ -2,11 +2,12 @@ package poeitem;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-public class StatTranslations {
+public class StatTranslations implements Serializable {
     
     public static ArrayList<StatTranslation> StatTranslations;
     public static ArrayList<Id> Ids;
@@ -46,7 +47,7 @@ public class StatTranslations {
         Collections.sort(Ids);
     }
     
-    protected class StatTranslation
+    protected class StatTranslation implements Serializable
     {
         
         ArrayList<String> strings;
@@ -82,7 +83,7 @@ public class StatTranslations {
     }
 }
 
-class Id implements Comparable
+class Id implements Comparable, Serializable
 {
     String str;
     StatTranslations.StatTranslation parent;

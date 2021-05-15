@@ -1,6 +1,8 @@
 package poeitem;
 
-class Stat {
+import java.io.Serializable;
+
+class Stat implements Serializable {
     
     private String id;
     private double min;

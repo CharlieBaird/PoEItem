@@ -18,7 +18,7 @@ public class PoEItem {
     public ArrayList<Modifier> baseModifiers = new ArrayList<>();
     public ArrayList<Modifier> enchantModifiers = new ArrayList<>();
     public ArrayList<Modifier> implicitModifiers = new ArrayList<>();
-    public ArrayList<Modifier> explicitModifiers = new ArrayList<>();
+    public ArrayList<ModifierTier> explicitModifierTiers = new ArrayList<>();
     
     public boolean corrupted;
     
@@ -151,10 +151,10 @@ public class PoEItem {
             System.out.println("Implicits: ");
             for (Modifier m : implicitModifiers) m.print();
         }
-        if (!explicitModifiers.isEmpty())
+        if (!explicitModifierTiers.isEmpty())
         {
             System.out.println("Explicits: ");
-            for (Modifier m : explicitModifiers) m.print();
+            for (ModifierTier m : explicitModifierTiers) m.print();
         }
         System.out.println("Corrupted: " + corrupted);
         

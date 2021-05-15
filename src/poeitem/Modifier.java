@@ -1,5 +1,6 @@
 package poeitem;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -8,7 +9,7 @@ import poeitem.bases.Affliction;
 import poeitem.bases.BaseItem;
 import poeitem.bases.Influence;
 
-public class Modifier{
+public class Modifier implements Serializable {
     
     public static ArrayList<Modifier> AllExplicitModifiers = new ArrayList<Modifier>();
     

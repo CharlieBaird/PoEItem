@@ -1,6 +1,8 @@
 package poeitem;
 
-public class Weight {
+import java.io.Serializable;
+
+public class Weight implements Serializable {
     
     private final Tag tag;
     private final int weight;
