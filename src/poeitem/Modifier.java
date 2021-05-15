@@ -99,12 +99,6 @@ public class Modifier{
             }
         }
         
-        System.out.println();
-        for (Tag t : tagsOnBase)
-        {
-            System.out.println(t.getTagName());
-        }
-        
         if (baseItem.getAfflictions() != null)
         {
             for (Affliction aff : baseItem.getAfflictions())
