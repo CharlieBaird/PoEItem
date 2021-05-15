@@ -40,6 +40,25 @@ public class Modifier implements Serializable {
         return modifierTiers;
     }
     
+    public ModifierTier[] getModifierTiers(int itemLevel) {
+        ArrayList<ModifierTier> tiers = new ArrayList<>();
+        for (ModifierTier tier : modifierTiers)
+        {
+            if (tier.getRequired_level() <= itemLevel)
+            {
+                tiers.add(tier);
+            }
+        }
+        
+        ModifierTier[] tiersArr = new ModifierTier[tiers.size()];
+        for (int i = 0; i < tiersArr.length; i++)
+        {
+            tiersArr[i] = tiers.get(i);
+        }
+        
+        return tiersArr;
+    }
+    
     public static Comparator<Modifier> binarySearchComparator = new Comparator<Modifier>()
     {
         @Override

@@ -215,10 +215,10 @@ public class ModifierTier implements Serializable, Comparable {
             stat.print();
         }
     }
+    
+    @Override
+    public String toString()
+    {
+        return this.getName();
+    }
 }
-
-
-// affliction_ for cluster jewel tags
-// "tag": "affliction_
-
-// 
