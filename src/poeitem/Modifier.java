@@ -185,7 +185,9 @@ public class Modifier implements Serializable {
         
         Modifier other = (Modifier) that;
         
-        return this.getKey().equals(other.getKey()) && this.getModifierTiers().get(0).getName().equals(other.getModifierTiers().get(0).getName());
+        return this.getKey().equals(other.getKey())
+                && getModifierTiers().get(0).equals(other.getModifierTiers().get(0))
+                && getModifierTiers().get(getModifierTiers().size()-1).equals(other.getModifierTiers().get(other.getModifierTiers().size()-1));
     }
     
     @Override
