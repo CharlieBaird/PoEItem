@@ -175,8 +175,17 @@ public class Modifier implements Serializable {
     {
         StatTranslation[] translations = this.getModifierTiers().get(0).getStatTranslations();
         return translations[0].strings.get(0);
+    }
+    
+    @Override
+    public boolean equals(Object that)
+    {
+        if (that == null) return false;
+        if (!(that instanceof Modifier)) return false;
         
+        Modifier other = (Modifier) that;
         
+        return this.getKey().equals(other.getKey()) && this.getModifierTiers().get(0).getName().equals(other.getModifierTiers().get(0).getName());
     }
     
     @Override
