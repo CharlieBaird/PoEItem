@@ -62,7 +62,7 @@ public class Modifier{
     
     public boolean isInfluenced()
     {
-        return this.getModifierTiers().get(0).getInfluence() != Influence.NORMAL;
+        return getInfluence() != Influence.NORMAL;
     }
     
     public Influence getInfluence()

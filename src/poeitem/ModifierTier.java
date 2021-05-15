@@ -54,23 +54,30 @@ public class ModifierTier implements Serializable, Comparable {
             case "of Shaping":
             case "The Shapers's":
                 this.influence = Influence.SHAPER;
+                break;
             case "Eldritch":
             case "of the Elder":
                 this.influence = Influence.ELDER;
+                break;
             case "Crusader's":
             case "of the Crusade":
                 this.influence = Influence.CRUSADER;
+                break;
             case "Redeemer's":
             case "of the Redeemer":
                 this.influence = Influence.REDEEMER;
+                break;
             case "Hunter's":
             case "of the Hunt":
                 this.influence = Influence.HUNTER;
+                break;
             case "Warlord's":
             case "of the Conquest":
                 this.influence = Influence.WARLORD;
+                break;
             default:
                 this.influence = Influence.NORMAL;
+                break;
         }
         
         Collections.sort(Modifier.AllExplicitModifiers, Modifier.binarySearchComparator);
