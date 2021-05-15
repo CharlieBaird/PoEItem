@@ -10,18 +10,21 @@ package poeitem.bases;
  * @author charl
  */
 public enum Influence {
-    NORMAL("Normal"),
-    SHAPER("Shaper"),
-    ELDER("Elder"),
-    HUNTER("Hunter"),
-    REDEEMER("Redeemer"),
-    WARLORD("Warlord"),
-    CRUSADER("Crusader");
+    NORMAL("Normal", ""),
+    SHAPER("Shaper", "_shaper"),
+    ELDER("Elder", "_elder"),
+    HUNTER("Hunter", "_basilisk"),
+    REDEEMER("Redeemer", "_eyrie"),
+    WARLORD("Warlord", "_adjudicator"),
+    CRUSADER("Crusader", "_crusader");
     
     public String friendly;
     
-    private Influence(String friendly)
+    public String tagSuffix;
+    
+    private Influence(String friendly, String tagSuffix)
     {
         this.friendly = friendly;
+        this.tagSuffix = tagSuffix;
     }
 }

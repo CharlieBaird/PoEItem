@@ -72,8 +72,38 @@ public class Modifier{
     
     public static ArrayList<Modifier> getAllApplicableModifiers(BaseItem baseItem)
     {
+        return getAllApplicableModifiers(baseItem, Influence.NORMAL);
+    }
+    
+    public static ArrayList<Modifier> getAllApplicableModifiers(BaseItem baseItem, Influence... influences)
+    {
         ArrayList<Modifier> modifiers = new ArrayList<>();
-        ArrayList<Tag> tagsOnBase = baseItem.getTags();
+        ArrayList<Tag> tagsOnBaseStamp = baseItem.getTags();
+        
+        ArrayList<Tag> tagsOnBase = new ArrayList<>();
+        for (Tag t : tagsOnBaseStamp)
+        {
+            tagsOnBase.add(t);
+        }
+        
+        for (Influence inf : influences)
+        {
+            if (inf == Influence.NORMAL) break;
+            
+            int length = tagsOnBase.size();
+            for (int i=0; i<length; i++)
+            {
+                String joined = tagsOnBase.get(i).getTagName() + inf.tagSuffix;
+                Tag t = Tag.getTypeFromTagName(joined);
+                if (t != null && !tagsOnBase.contains(t)) tagsOnBase.add(t);
+            }
+        }
+        
+        System.out.println();
+        for (Tag t : tagsOnBase)
+        {
+            System.out.println(t.getTagName());
+        }
         
         if (baseItem.getAfflictions() != null)
         {
