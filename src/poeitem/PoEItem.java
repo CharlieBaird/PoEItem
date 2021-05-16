@@ -30,6 +30,14 @@ public class PoEItem {
         return new PoEItem(raw);
     }
     
+    public static PoEItem createItem(String raw, BaseItem knownBaseItem, ArrayList<Modifier> applicableExplicits)
+    {
+        if (raw == null) return null;
+        
+        return new PoEItem(raw, knownBaseItem, applicableExplicits);
+    }
+    
+    private static Pattern MagicBaseTypePattern = Pattern.compile("(['s ]{3})(.+)([ of ]{4})");
     protected PoEItem(String raw)
     {
         raw = raw.replaceAll("([\\n]{1})(.+)([ \\(enchant\\)]{10})", "");
@@ -44,7 +52,7 @@ public class PoEItem {
             raw = raw.replace("Corrupted\n", "");
         }
                 
-        Matcher getRarity = Pattern.compile("([ity: ]{5})([a-zA-Z]+)").matcher(raw);
+        Matcher getRarity = getRarityPattern.matcher(raw);
         if (getRarity.find())
         {
             rarity = getRarity.group(2);
@@ -53,14 +61,14 @@ public class PoEItem {
         
         customName = lines[2];
 
-        Matcher getSockets = Pattern.compile("([Sockets: ]{9})([RGBW -]+)").matcher(raw);
+        Matcher getSockets = getSocketsPattern.matcher(raw);
         if (getSockets.find())
         {
             sockets = getSockets.group(2);
             raw = raw.replace(getSockets.group(0)+"\n", "");
         }
         
-        Matcher getInfluence = Pattern.compile("([Hunter|Shaper|Elder|Crusader|Warlord|Redeemer|Fractured|Synthesised]{5,11})([ Item]{5})").matcher(raw);
+        Matcher getInfluence = getInfluencePattern.matcher(raw);
         while (getInfluence.find())
         {
             influences.add(getInfluence.group(1));
@@ -75,8 +83,7 @@ public class PoEItem {
         }
         else if (rarity.equals("Magic"))
         {
-            Pattern p = Pattern.compile("(['s ]{3})(.+)([ of ]{4})");
-            Matcher m = p.matcher(lines[2]);
+            Matcher m = MagicBaseTypePattern.matcher(lines[2]);
             if (m.find())
             {
                 baseItem = BaseItem.getBaseItemFromName(m.group(2));
@@ -89,19 +96,16 @@ public class PoEItem {
         }
         
         ArrayList<Modifier> applicableExplicits = Modifier.getAllApplicableModifiers(baseItem, infs);
-//        for (Modifier m : applicableExplicits)
-//        {
-//            m.print();
-//        }
         
         genExplicits(raw, applicableExplicits);
     }
     
+    private static Pattern getTier = Pattern.compile("([Tier: ]{6})([0-9]+)");
+    private static Pattern getName = Pattern.compile("([fier \"]{6})([a-zA-Z-' ]+)([\"]{1})");
     private void genExplicits(String raw, ArrayList<Modifier> applicableExplicits)
     {
         ArrayList<String> explicits = parseMods(raw);
-        Pattern getTier = Pattern.compile("([Tier: ]{6})([0-9]+)");
-        Pattern getName = Pattern.compile("([fier \"]{6})([a-zA-Z-' ]+)([\"]{1})");
+        
         for (int i = 0; i < explicits.size(); i++) {
             explicits.set(i,explicits.get(i).replaceAll("([(])([0-9-.']+)([)])", ""));
             explicits.set(i,explicits.get(i).replaceAll("([0-9.]+)(?!\\))", "#"));
@@ -132,11 +136,16 @@ public class PoEItem {
         }
     }
     
+    Pattern getRarityPattern = Pattern.compile("([ity: ]{5})([a-zA-Z]+)");
+    Pattern getSocketsPattern = Pattern.compile("([Sockets: ]{9})([RGBW -]+)");
+    Pattern getInfluencePattern = Pattern.compile("([Hunter|Shaper|Elder|Crusader|Warlord|Redeemer|Fractured|Synthesised]{5,11})([ Item]{5})");
     protected PoEItem(String raw, BaseItem knownBaseItem, ArrayList<Modifier> applicableExplicits)
     {
         raw = raw.replaceAll("([\\n]{1})(.+)([ \\(enchant\\)]{10})", "");
         raw = raw.replaceAll("([\\n]{1})(.+)([ \\(implicit\\)]{10})", "");
         raw = raw.replaceAll("([\\n]{1})(.+)([ \\(crafted\\)]{10})", "");
+        
+        this.baseItem = knownBaseItem;
 
         String[] lines = raw.split("\\r?\\n");
         
@@ -146,7 +155,7 @@ public class PoEItem {
             raw = raw.replace("Corrupted\n", "");
         }
                 
-        Matcher getRarity = Pattern.compile("([ity: ]{5})([a-zA-Z]+)").matcher(raw);
+        Matcher getRarity = getRarityPattern.matcher(raw);
         if (getRarity.find())
         {
             rarity = getRarity.group(2);
@@ -155,14 +164,14 @@ public class PoEItem {
         
         customName = lines[2];
 
-        Matcher getSockets = Pattern.compile("([Sockets: ]{9})([RGBW -]+)").matcher(raw);
+        Matcher getSockets = getSocketsPattern.matcher(raw);
         if (getSockets.find())
         {
             sockets = getSockets.group(2);
             raw = raw.replace(getSockets.group(0)+"\n", "");
         }
         
-        Matcher getInfluence = Pattern.compile("([Hunter|Shaper|Elder|Crusader|Warlord|Redeemer|Fractured|Synthesised]{5,11})([ Item]{5})").matcher(raw);
+        Matcher getInfluence = getInfluencePattern.matcher(raw);
         while (getInfluence.find())
         {
             influences.add(getInfluence.group(1));
@@ -173,16 +182,16 @@ public class PoEItem {
         genExplicits(raw, applicableExplicits);
     }
     
+    private static Pattern parseModsPattern = Pattern.compile("([{ ]{2})([\\w]{6})([ ]{1})");
     public static ArrayList<String> parseMods(String mods)
     {
         String[] arr = mods.split("--------");
         
         String explicits = "";
         
-        Pattern pattern = Pattern.compile("([{ ]{2})([\\w]{6})([ ]{1})");
         for (String s : arr)
         {
-            Matcher m = pattern.matcher(s);
+            Matcher m = parseModsPattern.matcher(s);
             if (m.find())
             {
                 explicits = s;
@@ -192,23 +201,12 @@ public class PoEItem {
         
         String[] explicitMods = explicits.split("([{ ]{2})");
         ArrayList<String> modLines = new ArrayList<>();
-//        Pattern p = Pattern.compile("[\"]{1}([\\w -']+)[\"]{1}");
         for (String s : explicitMods)
         {
             if (s.contains("Master Crafted")) continue;
-            
-//            System.out.println(s);
             modLines.add(s);
-//            Matcher m = p.matcher(s);
-//            if (m.find())
-//                modLines.add(m.group(1));
         }
         
-        
-        
-//        String joined = String.join(String.valueOf(((char)10)), modLines);
-                
-//        return joined + "\n";
         return modLines;
     }
     
@@ -240,17 +238,6 @@ public class PoEItem {
         if (!itemType.equals(""))
             System.out.println(itemType);
         if (!sockets.isEmpty()) System.out.println("Sockets: " + sockets);
-//        for (Modifier m: baseModifiers) m.print();
-//        if (!enchantModifiers.isEmpty())
-//        {
-//            System.out.println("Enchants: ");
-//            for (Modifier m : enchantModifiers) m.print();
-//        }
-//        if (!implicitModifiers.isEmpty())
-//        {
-//            System.out.println("Implicits: ");
-//            for (Modifier m : implicitModifiers) m.print();
-//        }
         if (!explicitModifierTiers.isEmpty())
         {
             System.out.println("Explicits: ");
