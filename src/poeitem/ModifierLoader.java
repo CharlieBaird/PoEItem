@@ -65,7 +65,7 @@ public class ModifierLoader {
             }
             
             String domain = mod.get("domain").getAsString();
-            if (domain.equals("atlas") || domain.equals("area") || domain.equals("crafted") || domain.equals("delve") || domain.equals("flask"))
+            if (domain.equals("atlas") || domain.equals("area") || domain.equals("crafted") || domain.equals("delve"))
             {
                 continue;
             }
@@ -76,7 +76,7 @@ public class ModifierLoader {
             
             String type = mod.get("type").getAsString();
             CraftGroup craftGroup = CraftGroup.NORMAL;
-            if (key.contains("Jewel") || type.contains("Jewel") || type.contains("AfflictionNotable"))
+            if (key.contains("Jewel") || type.contains("Jewel") || type.contains("AfflictionNotable") || type.contains("Flask"))
             {
                 if (domain.equals("abyss_jewel"))
                 {
@@ -85,6 +85,10 @@ public class ModifierLoader {
                 else if (domain.equals("affliction_jewel"))
                 {
                     craftGroup = CraftGroup.CLUSTER_JEWEL;
+                }
+                else if (domain.equals("flask"))
+                {
+                    craftGroup = CraftGroup.FLASK;
                 }
                 else
                 {
@@ -147,7 +151,14 @@ public class ModifierLoader {
             for (int i=0; i<spawn_weights.size(); i++)
             {
                 JsonObject weight = spawn_weights.get(i).getAsJsonObject();
-                Weight w = new Weight(Tag.getTypeFromTagName(weight.get("tag").getAsString()), weight.get("weight").getAsInt());
+                String tagStr = weight.get("tag").getAsString();
+                if (craftGroup == CraftGroup.FLASK)
+                {
+                    tagStr = tagStr.replace("default", "default_flask");
+                }
+                Tag tag = Tag.getTypeFromTagName(tagStr);
+                int weightVal = weight.get("weight").getAsInt();
+                Weight w = new Weight(tag, weightVal);
                 weights[i] = w;
             }
             

@@ -22,6 +22,7 @@ public enum Tag {
     _mana_flask("mana_flask"),
     _hybrid_flask("hybrid_flask"),
     _flask("flask"),
+    _default_flask("default_flask"),
     _quiver("quiver"),
     _gloves("gloves"),
     _onehand("onehand"),

@@ -171,7 +171,7 @@ public class ModifierTier implements Serializable, Comparable {
             return false;
         }
         
-        if (this.getName().equals("Notable"))
+        if (this.getName().equals("of Warding"))
         {
             System.out.println();
         }
@@ -185,7 +185,7 @@ public class ModifierTier implements Serializable, Comparable {
                 
                 if (tag == modTag)
                 {
-                    if (tag == Tag._default && modWeight.getWeight() == 0)
+                    if ((tag == Tag._default || tag == Tag._default_flask) && modWeight.getWeight() == 0)
                     {
                         if (!overrideDefault) return false;
                     }
@@ -238,6 +238,13 @@ public class ModifierTier implements Serializable, Comparable {
                             if (s.strings.contains(words[1]))
                             {
                                 return mt;
+                            }
+                            for (String st : s.strings)
+                            {
+                                if (st.contains(words[1]))
+                                {
+                                    return mt;
+                                }
                             }
                         }
                     }

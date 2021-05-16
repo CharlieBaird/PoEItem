@@ -34,6 +34,13 @@ public class BaseItem implements Serializable {
                 craftGroup = CraftGroup.CLUSTER_JEWEL;
                 afflictions = new ArrayList<>();
                 break;
+            case "UtilityFlask":
+            case "HybridFlask":
+            case "LifeFlask":
+            case "ManaFlask":
+            case "UtilityFlaskCritical":
+                craftGroup = CraftGroup.FLASK;
+                break;
             default:
                 craftGroup = CraftGroup.NORMAL;
                 break;
@@ -103,29 +110,37 @@ public class BaseItem implements Serializable {
             
             // Only accept entries of the following domains.
             String domain = base_item.get("domain").getAsString();
-            if (!domain.equals("item") && !domain.equals("affliction_jewel") && !domain.equals("misc") && !domain.equals("abyss_jewel"))
+            if (!domain.equals("item") && !domain.equals("affliction_jewel") && !domain.equals("misc") && !domain.equals("abyss_jewel") && !domain.equals("flask"))
             {
                 continue;
             }
             
             // Override "Jewel" for cluster jewels to be "Cluster Jewel"
             // Override "AbyssJewel" to be "Jewel"
-            String item_class = base_item.get("item_class").getAsString();
-            if (domain.equals("affliction_jewel"))
-            {
-                item_class = "Cluster Jewel";
-            }
-            if (domain.equals("abyss_jewel"))
-            {
-                item_class = "Abyss Jewel";
-            }
+            
             String name = base_item.get("name").getAsString();
             
             JsonArray tagsJson = base_item.get("tags").getAsJsonArray();
             ArrayList<Tag> tags = new ArrayList<>();
             for (int i=0; i<tagsJson.size(); i++)
             {
-                tags.add(Tag.getTypeFromTagName(tagsJson.get(i).getAsString()));
+                String toTag = tagsJson.get(i).getAsString();
+                if (domain.equals("flask"))
+                {
+                    toTag = toTag.replace("default", "default_flask");
+                }
+
+                tags.add(Tag.getTypeFromTagName(toTag));
+            }
+            
+            String item_class = base_item.get("item_class").getAsString();
+            if (domain.equals("affliction_jewel"))
+            {
+                item_class = "Cluster Jewel";
+            }
+            else if (domain.equals("abyss_jewel"))
+            {
+                item_class = "Abyss Jewel";
             }
             
             BaseItem baseItem = new BaseItem(item_class, name, tags);
