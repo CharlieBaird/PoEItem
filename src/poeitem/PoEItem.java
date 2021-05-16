@@ -124,6 +124,8 @@ public class PoEItem {
             
             explicits.set(i,explicits.get(i).replaceAll("([(])([0-9-.']+)([)])", ""));
             explicits.set(i,explicits.get(i).replaceAll("([0-9.]+)(?!\\))", "#"));
+            explicits.set(i,explicits.get(i).replaceAll(" — Unscalable Value", ""));
+            explicits.set(i,explicits.get(i).replaceAll("([# Added Passive Skill is]{25})", "1 Added Passive Skill is "));
             
             String[] lines = explicits.get(i).split("\\r?\\n");
             
