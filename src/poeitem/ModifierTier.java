@@ -82,7 +82,6 @@ public class ModifierTier implements Serializable, Comparable {
         
         Collections.sort(Modifier.AllExplicitModifiers, Modifier.binarySearchComparator);
     }
-    
 
     public String getKey() {
         return key;
@@ -220,5 +219,29 @@ public class ModifierTier implements Serializable, Comparable {
     public String toString()
     {
         return this.getName();
+    }
+    
+    public static ModifierTier match(ArrayList<Modifier> applicableModifiers, String name, String[] words, int tier) // words starts at i=1
+    {
+        for (Modifier m : applicableModifiers)
+        {
+            for (int i=0; i<m.getModifierTiers().size(); i++)
+            {
+                ModifierTier mt = m.getModifierTiers().get(i);
+                int mtTier = m.getModifierTiers().size() - i;
+                if (mtTier == tier 
+                    && mt.getName().equals(name))
+                {
+                    for (StatTranslation s : mt.statTranslations)
+                    {
+                        if (s.strings.contains(words[1]))
+                        {
+                            return mt;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 }

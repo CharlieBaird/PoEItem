@@ -28,9 +28,9 @@ class Stat implements Serializable {
     
     public void print()
     {
-        System.out.println(id);
-        System.out.println("min: " + min);
-        System.out.println("max: " + max);
+        System.out.println("    " + id);
+        System.out.println("        min: " + min);
+        System.out.println("        max: " + max);
     }
     
 }

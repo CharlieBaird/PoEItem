@@ -22,6 +22,19 @@ public enum Influence {
     
     public String tagSuffix;
     
+    public static Influence getFromFriendly(String friendly)
+    {
+        for (Influence inf : Influence.values())
+        {
+            if (inf.friendly.equals(friendly))
+            {
+                return inf;
+            }
+        }
+        
+        return Influence.NORMAL;
+    }
+    
     private Influence(String friendly, String tagSuffix)
     {
         this.friendly = friendly;
