@@ -228,15 +228,17 @@ public class ModifierTier implements Serializable, Comparable {
             for (int i=0; i<m.getModifierTiers().size(); i++)
             {
                 ModifierTier mt = m.getModifierTiers().get(i);
-                int mtTier = m.getModifierTiers().size() - i;
-                if (mtTier == tier 
-                    && mt.getName().equals(name))
+                if (mt.getName().equals(name))
                 {
-                    for (StatTranslation s : mt.statTranslations)
+                    int mtTier = m.getModifierTiers().size() - i;
+                    if (mtTier == tier)
                     {
-                        if (s.strings.contains(words[1]))
+                        for (StatTranslation s : mt.statTranslations)
                         {
-                            return mt;
+                            if (s.strings.contains(words[1]))
+                            {
+                                return mt;
+                            }
                         }
                     }
                 }

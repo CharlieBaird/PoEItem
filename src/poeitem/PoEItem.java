@@ -37,7 +37,6 @@ public class PoEItem {
         return new PoEItem(raw, knownBaseItem, applicableExplicits);
     }
     
-    private static Pattern MagicBaseTypePattern = Pattern.compile("(['s ]{3})(.+)([ of ]{4})");
     protected PoEItem(String raw)
     {
         raw = raw.replaceAll("([\\n]{1})(.+)([ \\(enchant\\)]{10})", "");
@@ -83,11 +82,17 @@ public class PoEItem {
         }
         else if (rarity.equals("Magic"))
         {
-            Matcher m = MagicBaseTypePattern.matcher(lines[2]);
-            if (m.find())
+            Matcher mPrefix = prefixPattern.matcher(raw);
+            if (mPrefix.find())
             {
-                baseItem = BaseItem.getBaseItemFromName(m.group(2));
+                lines[2] = lines[2].replace(mPrefix.group(3) + " ", "");
             }
+            Matcher mSuffix = suffixPattern.matcher(raw);
+            if (mSuffix.find())
+            {
+                lines[2] = lines[2].replace(" " + mSuffix.group(3), "");
+            }
+            baseItem = BaseItem.getBaseItemFromName(lines[2]);
         }
         
         Influence[] infs = new Influence[influences.size()];
@@ -100,16 +105,16 @@ public class PoEItem {
         genExplicits(raw, applicableExplicits);
     }
     
-    private static Pattern getTier = Pattern.compile("([Tier: ]{6})([0-9]+)");
+    private static Pattern suffixPattern = Pattern.compile("([Suffix Modifier ]{16})([\"]{1})([a-zA-Z-' ]+)([\"]{1})");
+    private static Pattern prefixPattern = Pattern.compile("([Prefix Modifier ]{16})([\"]{1})([a-zA-Z-' ]+)([\"]{1})");
+    private static Pattern getTier = Pattern.compile("([Tier: ]{6})([0-9]+)([)]{1})");
     private static Pattern getName = Pattern.compile("([fier \"]{6})([a-zA-Z-' ]+)([\"]{1})");
     private void genExplicits(String raw, ArrayList<Modifier> applicableExplicits)
     {
         ArrayList<String> explicits = parseMods(raw);
         
         for (int i = 0; i < explicits.size(); i++) {
-            explicits.set(i,explicits.get(i).replaceAll("([(])([0-9-.']+)([)])", ""));
-            explicits.set(i,explicits.get(i).replaceAll("([0-9.]+)(?!\\))", "#"));
-
+            
             Matcher m = getTier.matcher(explicits.get(i));
             int tier;
             if (m.find())
@@ -117,9 +122,11 @@ public class PoEItem {
             else
                 tier = 1;
             
+            explicits.set(i,explicits.get(i).replaceAll("([(])([0-9-.']+)([)])", ""));
+            explicits.set(i,explicits.get(i).replaceAll("([0-9.]+)(?!\\))", "#"));
+            
             String[] lines = explicits.get(i).split("\\r?\\n");
             
-            String temp = explicits.get(i);
             Matcher m2 = getName.matcher(explicits.get(i));
             if (!m2.find())
                 continue;

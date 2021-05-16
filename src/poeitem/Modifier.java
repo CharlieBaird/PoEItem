@@ -78,13 +78,6 @@ public class Modifier implements Serializable {
     private void sortTiers()
     {
         Collections.sort(this.modifierTiers, ModifierTier.comparatorSortByKey);
-//        int size = this.modifierTiers.size();
-//        int counter = 1;
-//        for (int i=size-1; i>=0; i--)
-//        {
-//            modifierTiers.get(i).setTier(counter);
-//            counter++;
-//        }
     }
     
     public boolean isInfluenced()
