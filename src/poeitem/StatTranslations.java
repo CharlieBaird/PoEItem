@@ -109,7 +109,7 @@ public class StatTranslations implements Serializable {
     }
 }
 
-class Condition
+class Condition implements Serializable
 {
     int min;
     int max;

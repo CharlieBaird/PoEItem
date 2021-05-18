@@ -26,6 +26,10 @@ public class ModifierTier implements Serializable, Comparable {
     private Influence influence;
     private ArrayList<String> statStrings;
 
+    public ArrayList<String> getStatStrings() {
+        return statStrings;
+    }
+
     public ModifierTier(String key, String modGroup, StatTranslation[] statTranslations, String name, 
             int required_level, Affix affix_type, Stat[] ids, Weight[] weights, CraftGroup craftGroup) {
         this.key = key;
@@ -98,10 +102,10 @@ public class ModifierTier implements Serializable, Comparable {
                 {
 //                    if (allTranslations[i].ids[k].str.equals(this.ids[j].getId()))
 //                    {
-                        if (this.name.equals("Merciless"))
-                        {
-                            System.out.println("Merciless");
-                        }
+//                        if (this.name.equals("Merciless"))
+//                        {
+//                            System.out.println("Merciless");
+//                        }
 
                         int multiplier = currentTranslation.conditions.size()/currentTranslation.strings.size();
                         Condition condition = currentTranslation.conditions.get(k*multiplier);

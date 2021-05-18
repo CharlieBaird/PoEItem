@@ -89,28 +89,6 @@ public class Modifier implements Serializable {
         Collections.sort(this.modifierTiers, ModifierTier.comparatorSortByKey);
     }
     
-    public static void removeUnnecessaryStatTranslations() {
-        for (int i = 0; i < Modifier.AllExplicitModifiers.size(); i++) {
-            Modifier modifier = AllExplicitModifiers.get(i);
-            ArrayList<String> UsedStatTranslations = new ArrayList<>();
-            for (ModifierTier tier : modifier.getModifierTiers())
-            {
-                for (StatTranslation translation : tier.getStatTranslations())
-                {
-                    for (int j=0; j<translation.strings.size(); j++)
-                    {
-                        if (tier.matches(translation, j))
-                        {
-                            if (!UsedStatTranslations.contains(translation.strings.get(j)))
-                                UsedStatTranslations.add(translation.strings.get(j));
-                        }
-                    }
-                }
-            }
-            modifier.setStatTranslations(UsedStatTranslations);
-        }
-    }
-    
     public boolean isInfluenced()
     {
         return getInfluence() != Influence.NORMAL;
@@ -217,12 +195,16 @@ public class Modifier implements Serializable {
 //        return translations[0].strings.get(0);
         
         StringBuilder builder = new StringBuilder("");
-        for (String s : this.getStatTranslations())
+        for (ModifierTier m : modifierTiers)
         {
-            builder.append(s).append("\n");
+            for (String s : m.getStatStrings())
+            {
+                if (builder.indexOf(s) == -1)
+                    builder.append(s).append(", ");
+            }
         }
         
-        return builder.toString();
+        return builder.substring(0, builder.length()-2);
     }
     
     @Override
