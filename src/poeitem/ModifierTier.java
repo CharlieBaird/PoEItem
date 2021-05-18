@@ -103,7 +103,8 @@ public class ModifierTier implements Serializable, Comparable {
                             System.out.println("Merciless");
                         }
 
-                        Condition condition = currentTranslation.conditions.get(k);
+                        int multiplier = currentTranslation.conditions.size()/currentTranslation.strings.size();
+                        Condition condition = currentTranslation.conditions.get(k*multiplier);
                         if (!condition.valid)
                         {
                             continue;
@@ -279,6 +280,7 @@ public class ModifierTier implements Serializable, Comparable {
     public void print()
     {
         System.out.println(name + ": iLvl " + required_level);
+        if (this.statStrings.isEmpty()) System.out.println("empty sadge");
         for (String s : this.statStrings)
         {
             System.out.println("  " + s);
