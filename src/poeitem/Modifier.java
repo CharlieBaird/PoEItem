@@ -216,13 +216,14 @@ public class Modifier implements Serializable {
         Modifier other = (Modifier) that;
         
         return this.getKey().equals(other.getKey())
-                && getModifierTiers().get(0).equals(other.getModifierTiers().get(0))
-                && getModifierTiers().get(getModifierTiers().size()-1).equals(other.getModifierTiers().get(other.getModifierTiers().size()-1));
+                && getModifierTiers().get(0).getName().equals(other.getModifierTiers().get(0).getName())
+                && getModifierTiers().get(getModifierTiers().size()-1).getName().equals(other.getModifierTiers().get(other.getModifierTiers().size()-1).getName());
     }
     
     @Override
     public String toString()
     {
+//        return this.modifierTiers.get(0).getAffix_type().toString().substring(0,1) + " " + this.getFriendlyString();
         return this.getFriendlyString();
     }
 }
