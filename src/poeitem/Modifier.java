@@ -12,7 +12,16 @@ import poeitem.bases.Influence;
 public class Modifier implements Serializable {
     
     public static ArrayList<Modifier> AllExplicitModifiers = new ArrayList<Modifier>();
-    
+
+    public ArrayList<String> statTranslations;
+
+    public ArrayList<String> getStatTranslations() {
+        return statTranslations;
+    }
+
+    public void setStatTranslations(ArrayList<String> statTranslations) {
+        this.statTranslations = statTranslations;
+    }
     private String key;
     private ArrayList<ModifierTier> modifierTiers;
 
@@ -78,6 +87,28 @@ public class Modifier implements Serializable {
     private void sortTiers()
     {
         Collections.sort(this.modifierTiers, ModifierTier.comparatorSortByKey);
+    }
+    
+    public static void removeUnnecessaryStatTranslations() {
+        for (int i = 0; i < Modifier.AllExplicitModifiers.size(); i++) {
+            Modifier modifier = AllExplicitModifiers.get(i);
+            ArrayList<String> UsedStatTranslations = new ArrayList<>();
+            for (ModifierTier tier : modifier.getModifierTiers())
+            {
+                for (StatTranslation translation : tier.getStatTranslations())
+                {
+                    for (int j=0; j<translation.strings.size(); j++)
+                    {
+                        if (tier.matches(translation, j))
+                        {
+                            if (!UsedStatTranslations.contains(translation.strings.get(j)))
+                                UsedStatTranslations.add(translation.strings.get(j));
+                        }
+                    }
+                }
+            }
+            modifier.setStatTranslations(UsedStatTranslations);
+        }
     }
     
     public boolean isInfluenced()
@@ -150,6 +181,7 @@ public class Modifier implements Serializable {
                 continue;
             }
             Modifier mod = new Modifier(modifierTiers);
+            mod.setStatTranslations(modifier.getStatTranslations());
             modifiers.add(mod);
         }
         
@@ -159,10 +191,18 @@ public class Modifier implements Serializable {
     public void print()
     {
         System.out.println(key);
-        for (StatTranslation stat : modifierTiers.get(0).getStatTranslations())
+        if (this.getStatTranslations() != null)
         {
-            stat.print();
+            for (String s : this.getStatTranslations())
+            {
+                System.out.println(s);
+            }
         }
+        else
+        {
+            System.out.println("I got nothing lol");
+        }
+        
         System.out.println();
         for (ModifierTier sub : modifierTiers)
         {
@@ -177,14 +217,9 @@ public class Modifier implements Serializable {
 //        return translations[0].strings.get(0);
         
         StringBuilder builder = new StringBuilder("");
-        for (StatTranslation st : this.getModifierTiers().get(0).getStatTranslations())
+        for (String s : this.getStatTranslations())
         {
-            for (String s : st.strings)
-            {
-                if (builder.indexOf(s) != -1) continue;
-                builder.append(s).append("\n");
-            }
-            builder.append("\r");
+            builder.append(s).append("\n");
         }
         
         return builder.toString();

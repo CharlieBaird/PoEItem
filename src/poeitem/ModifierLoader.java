@@ -188,6 +188,7 @@ public class ModifierLoader {
         }
         
         Modifier.setAllTiers();
+//        Modifier.removeUnnecessaryStatTranslations();
 
     }
     

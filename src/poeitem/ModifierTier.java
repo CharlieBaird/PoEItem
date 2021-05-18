@@ -24,18 +24,20 @@ public class ModifierTier implements Serializable, Comparable {
     private Weight[] weights;
     private CraftGroup craftGroup;
     private Influence influence;
+    private ArrayList<String> statStrings;
 
     public ModifierTier(String key, String modGroup, StatTranslation[] statTranslations, String name, 
             int required_level, Affix affix_type, Stat[] ids, Weight[] weights, CraftGroup craftGroup) {
         this.key = key;
         this.modGroup = modGroup;
-        this.statTranslations = statTranslations;
         this.name = name;
         this.required_level = required_level;
         this.affix_type = affix_type;
         this.ids = ids;
         this.weights = weights;
         this.craftGroup = craftGroup;
+        this.statTranslations = statTranslations;
+        this.statStrings = parseStatTranslations(statTranslations);
         
         int index = Collections.binarySearch(Modifier.AllExplicitModifiers, new Modifier(modGroup), Modifier.binarySearchComparator);
         if (index >= 0 && index < Modifier.AllExplicitModifiers.size())
@@ -81,6 +83,43 @@ public class ModifierTier implements Serializable, Comparable {
         }
         
         Collections.sort(Modifier.AllExplicitModifiers, Modifier.binarySearchComparator);
+    }
+    
+    private ArrayList<String> parseStatTranslations(StatTranslation[] allTranslations)
+    {
+        ArrayList<String> validTranslations = new ArrayList<>();
+        for (int i=0; i<allTranslations.length; i++)
+        {
+            StatTranslation currentTranslation = allTranslations[i];
+            for (int k=0; k<allTranslations[i].strings.size(); k++)
+            {
+                String checking = currentTranslation.strings.get(k);
+                for (int j=0; j<this.ids.length; j++)
+                {
+//                    if (allTranslations[i].ids[k].str.equals(this.ids[j].getId()))
+//                    {
+                        if (this.name.equals("Merciless"))
+                        {
+                            System.out.println("Merciless");
+                        }
+
+                        Condition condition = currentTranslation.conditions.get(k);
+                        if (!condition.valid)
+                        {
+                            continue;
+                        }
+
+                        Stat stat = this.ids[j];
+
+                        boolean TF = condition.min <= stat.getMin() && stat.getMax() <= condition.max;
+                        if (TF && !validTranslations.contains(allTranslations[i].strings.get(k))) validTranslations.add(allTranslations[i].strings.get(k));
+//                    }
+                }
+            }
+        }
+        
+        
+        return validTranslations;
     }
 
     public String getKey() {
@@ -154,6 +193,37 @@ public class ModifierTier implements Serializable, Comparable {
             return val1 - val2;
         }
     };
+
+    public boolean matches(StatTranslation translation, int j) {
+        
+//        if (this.getName().contains("Merci"))
+//        {
+//            System.out.println("Stop right there");
+//        }
+        
+        
+        Condition condition = null;
+        try {
+            condition = translation.conditions.get(j);
+        } catch(IndexOutOfBoundsException e)
+        {
+            return true;
+        }
+        Stat stat = null;
+        try {
+            stat = this.ids[0];
+        } catch(ArrayIndexOutOfBoundsException e)
+        {
+            System.out.println("Yep");
+        }
+        
+        boolean TF = condition.min < stat.getMin() && stat.getMax() < condition.max;
+        if (TF == true && (translation.strings.get(j).equals("No Physical Damage")))
+        {
+            System.out.println("Stop right there");
+        }
+        return TF;
+    }
     
     public enum Affix {
         PREFIX, SUFFIX
@@ -209,6 +279,10 @@ public class ModifierTier implements Serializable, Comparable {
     public void print()
     {
         System.out.println(name + ": iLvl " + required_level);
+        for (String s : this.statStrings)
+        {
+            System.out.println("  " + s);
+        }
         for (Stat stat : ids)
         {
             stat.print();

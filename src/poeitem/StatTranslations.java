@@ -24,11 +24,36 @@ public class StatTranslations implements Serializable {
             JsonArray english = stat_translation.get("English").getAsJsonArray();
             for (int j=0; j<english.size(); j++)
             {
-                JsonArray format = english.get(j).getAsJsonObject().get("format").getAsJsonArray();
-                String string = english.get(j).getAsJsonObject().get("string").getAsString();
+                JsonObject jsonObject = english.get(j).getAsJsonObject();
+                
+                JsonArray format = jsonObject.get("format").getAsJsonArray();
+                JsonArray condition = jsonObject.get("condition").getAsJsonArray();
+                
+                String string = jsonObject.get("string").getAsString();
                 for (int k=0; k<format.size(); k++)
                 {
-                    string = string.replaceFirst("\\{\\d\\}", format.get(k).getAsString());
+                    String formatK = format.get(k).getAsString();
+                    string = string.replaceFirst("\\{\\d\\}", formatK);
+                    
+//                    if (formatK.equals("ignore"))
+//                        continue;
+                    
+                    int min;
+                    int max;
+                    try {
+                        min = condition.get(k).getAsJsonObject().get("min").getAsInt();
+                    } catch (NullPointerException e) {
+                        min = -100000;
+                    }
+                    try {
+                        max = condition.get(k).getAsJsonObject().get("max").getAsInt();
+                    } catch (NullPointerException e)
+                    {
+                        max = 100000;
+                    }
+                    
+                    statTranslation.conditions.add(new Condition(min, max, true));
+                    
                 }
                 statTranslation.strings.add(string);
             }
@@ -49,13 +74,14 @@ public class StatTranslations implements Serializable {
     
     protected class StatTranslation implements Serializable
     {
-        
+        ArrayList<Condition> conditions;
         ArrayList<String> strings;
         Id[] ids;
                 
         public StatTranslation()
         {
             strings = new ArrayList<>();
+            conditions = new ArrayList<>();
         }
         
         public void print()
@@ -80,6 +106,20 @@ public class StatTranslations implements Serializable {
                 Ids.add(id);
             }
         }
+    }
+}
+
+class Condition
+{
+    int min;
+    int max;
+    boolean valid;
+    
+    public Condition(int min, int max, boolean valid)
+    {
+        this.min = min;
+        this.max = max;
+        this.valid = valid;
     }
 }
 
