@@ -173,8 +173,21 @@ public class Modifier implements Serializable {
     
     private String getFriendlyString()
     {
-        StatTranslation[] translations = this.getModifierTiers().get(0).getStatTranslations();
-        return translations[0].strings.get(0);
+//        StatTranslation[] translations = this.getModifierTiers().get(0).getStatTranslations();
+//        return translations[0].strings.get(0);
+        
+        StringBuilder builder = new StringBuilder("");
+        for (StatTranslation st : this.getModifierTiers().get(0).getStatTranslations())
+        {
+            for (String s : st.strings)
+            {
+                if (builder.indexOf(s) != -1) continue;
+                builder.append(s).append("\n");
+            }
+            builder.append("\r");
+        }
+        
+        return builder.toString();
     }
     
     @Override
